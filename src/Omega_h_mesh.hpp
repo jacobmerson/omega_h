@@ -119,13 +119,13 @@ class Mesh {
   Adj get_adj(Topo_type from_type, Topo_type to_type) const;
   Adj ask_down(Int from, Int to) const;
   Adj ask_down(Topo_type from_type, Topo_type to_type) const;
-  LOs ask_verts_of(Int dim);
-  LOs ask_verts_of(Topo_type ent_type);
-  LOs ask_elem_verts();
+  LOs ask_verts_of(Int dim) const;
+  LOs ask_verts_of(Topo_type ent_type) const;
+  LOs ask_elem_verts() const;
   Adj ask_up(Int from, Int to) const;
   Adj ask_up(Topo_type from_type, Topo_type to_type) const;
-  Graph ask_star(Int dim);
-  Graph ask_dual();
+  Graph ask_star(Int dim) const;
+  Graph ask_dual() const;
 
 /** ask_revClass (Int edim, LOs class_ids): takes input of entity dimension
  * 'edim', and an 1d array of model entity IDs to return

@@ -489,11 +489,11 @@ Adj Mesh::ask_down(Topo_type from_type, Topo_type to_type) const {
   return ask_adj(from_type, to_type);
 }
 
-LOs Mesh::ask_verts_of(Int ent_dim) { return ask_adj(ent_dim, VERT).ab2b; }
+LOs Mesh::ask_verts_of(Int ent_dim) const { return ask_adj(ent_dim, VERT).ab2b; }
 
-LOs Mesh::ask_verts_of(Topo_type ent_type) { return ask_adj(ent_type, Topo_type::vertex).ab2b; }
+LOs Mesh::ask_verts_of(Topo_type ent_type) const { return ask_adj(ent_type, Topo_type::vertex).ab2b; }
 
-LOs Mesh::ask_elem_verts() { return ask_verts_of(dim()); }
+LOs Mesh::ask_elem_verts() const { return ask_verts_of(dim()); }
 
 Adj Mesh::ask_up(Int from, Int to) const {
   OMEGA_H_CHECK(from < to);
@@ -505,12 +505,12 @@ Adj Mesh::ask_up(Topo_type from_type, Topo_type to_type) const {
   return ask_adj(from_type, to_type);
 }
 
-Graph Mesh::ask_star(Int ent_dim) {
+Graph Mesh::ask_star(Int ent_dim) const {
   OMEGA_H_CHECK(ent_dim < dim());
   return ask_adj(ent_dim, ent_dim);
 }
 
-Graph Mesh::ask_dual() { return ask_adj(dim(), dim()); }
+Graph Mesh::ask_dual() const { return ask_adj(dim(), dim()); }
 
 Mesh::TagIter Mesh::tag_iter(Int ent_dim, std::string const& name) {
   return std::find_if(tags_[ent_dim].begin(), tags_[ent_dim].end(),
