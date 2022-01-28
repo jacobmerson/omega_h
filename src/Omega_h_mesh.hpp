@@ -134,13 +134,13 @@ class Mesh {
  * model entity dimension as well as the dimension of returned mesh entities
  * NOTE: if the model entity is a region, the memory usage is high
  */
-  Adj ask_revClass (Int edim, LOs class_ids);
+  Adj ask_revClass (Int edim, LOs class_ids) const;
 
 /** ask_revClass (Int edim): see ask_revClass (Int edim, LOs class_ids) above.
  * Here, the output is for all model entities of dimension 'edim' instead
  * of a input list
  */
-  Adj ask_revClass (Int edim);
+  Adj ask_revClass (Int edim) const;
 
 /** ask_revClass_downAdj (Int from, Int to): takes input of a higher
  * dimension 'from' and a lower dimension 'to'. The value of 'from' is equal
@@ -153,7 +153,7 @@ class Mesh {
  * mesh entities of dimension 'to' which bound the reverse classified mesh
  * entities of dimension 'from'.
  */
-  Adj ask_revClass_downAdj (Int from, Int to);
+  Adj ask_revClass_downAdj (Int from, Int to) const;
 
 /** has_revClass (Int edim): Input is a entity dimension 'edim'. This function
  * checks if the reverse classification for that dimension is present in
@@ -264,7 +264,7 @@ class Mesh {
   LOs model_ents_[DIMS];
   LOs model_matches_[DIMS-1];
 
-  AdjPtr revClass_[DIMS];
+  AdjPtr mutable revClass_[DIMS];
 
  public:
   void add_coords(Reals array);
@@ -314,7 +314,7 @@ class Mesh {
   RibPtr rib_hints() const;
   void set_rib_hints(RibPtr hints);
   Real imbalance(Int ent_dim = -1) const;
-  Adj derive_revClass (Int edim, I8 should_sort = -1);
+  Adj derive_revClass (Int edim, I8 should_sort = -1) const;
 
   void set_model_ents(Int ent_dim, LOs Ids); 
   void set_model_matches(Int ent_dim, LOs matches); 

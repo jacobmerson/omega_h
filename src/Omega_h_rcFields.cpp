@@ -66,7 +66,7 @@ void sort_by_high_index(LOs const l2lh, Write<LO> const lh2h) {
   parallel_for(nl, std::move(f));
 }
 
-Adj Mesh::derive_revClass (Int edim, I8 should_sort) {
+Adj Mesh::derive_revClass (Int edim, I8 should_sort) const {
   OMEGA_H_TIME_FUNCTION;
   OMEGA_H_CHECK (has_ents(edim));
 
@@ -115,7 +115,7 @@ Adj Mesh::derive_revClass (Int edim, I8 should_sort) {
 
 }
 
-Adj Mesh::ask_revClass (Int edim) {
+Adj Mesh::ask_revClass (Int edim) const {
   OMEGA_H_TIME_FUNCTION;
   OMEGA_H_CHECK (has_ents(edim));
   if (has_revClass (edim)) {
@@ -126,7 +126,7 @@ Adj Mesh::ask_revClass (Int edim) {
   return derived_rc;
 }
 
-Adj Mesh::ask_revClass (Int edim, LOs class_ids) {
+Adj Mesh::ask_revClass (Int edim, LOs class_ids) const {
   OMEGA_H_TIME_FUNCTION;
   OMEGA_H_CHECK (has_ents(edim));
   if (!class_ids.size()) {
@@ -628,7 +628,7 @@ bool Mesh::has_anyrcField() {
 
 }
 
-Adj Mesh::ask_revClass_downAdj (Int from, Int to) {
+Adj Mesh::ask_revClass_downAdj (Int from, Int to) const {
   auto rc = ask_revClass (from);
   auto ab2b = rc.ab2b;
   auto a2ab = rc.a2ab;
