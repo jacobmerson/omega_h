@@ -479,12 +479,12 @@ Adj Mesh::get_adj(Topo_type from_type, Topo_type to_type) const {
   return *(adjs_type_[int(from_type)][int(to_type)]);
 }
 
-Adj Mesh::ask_down(Int from, Int to) {
+Adj Mesh::ask_down(Int from, Int to) const {
   OMEGA_H_CHECK(to < from);
   return ask_adj(from, to);
 }
 
-Adj Mesh::ask_down(Topo_type from_type, Topo_type to_type) {
+Adj Mesh::ask_down(Topo_type from_type, Topo_type to_type) const {
   OMEGA_H_CHECK(int(to_type) < int(from_type));
   return ask_adj(from_type, to_type);
 }
@@ -495,12 +495,12 @@ LOs Mesh::ask_verts_of(Topo_type ent_type) { return ask_adj(ent_type, Topo_type:
 
 LOs Mesh::ask_elem_verts() { return ask_verts_of(dim()); }
 
-Adj Mesh::ask_up(Int from, Int to) {
+Adj Mesh::ask_up(Int from, Int to) const {
   OMEGA_H_CHECK(from < to);
   return ask_adj(from, to);
 }
 
-Adj Mesh::ask_up(Topo_type from_type, Topo_type to_type) {
+Adj Mesh::ask_up(Topo_type from_type, Topo_type to_type) const {
   OMEGA_H_CHECK(int(from_type) < int(to_type));
   return ask_adj(from_type, to_type);
 }
@@ -605,7 +605,7 @@ void Mesh::add_adj(Topo_type from_type, Topo_type to_type, Adj adj) {
   adjs_type_[from][to] = std::make_shared<Adj>(adj);
 }
 
-Adj Mesh::derive_adj(Int from, Int to) {
+Adj Mesh::derive_adj(Int from, Int to) const {
   OMEGA_H_TIME_FUNCTION;
   check_dim(from);
   check_dim2(to);
@@ -645,7 +645,7 @@ Adj Mesh::derive_adj(Int from, Int to) {
   OMEGA_H_NORETURN(Adj());
 }
 
-Adj Mesh::derive_adj(Topo_type from_type, Topo_type to_type) {
+Adj Mesh::derive_adj(Topo_type from_type, Topo_type to_type) const {
   OMEGA_H_TIME_FUNCTION;
   check_type(from_type);
   check_type2(to_type);
@@ -683,7 +683,7 @@ Adj Mesh::derive_adj(Topo_type from_type, Topo_type to_type) {
   OMEGA_H_NORETURN(Adj());
 }
 
-Adj Mesh::ask_adj(Int from, Int to) {
+Adj Mesh::ask_adj(Int from, Int to) const {
   OMEGA_H_TIME_FUNCTION;
   check_dim2(from);
   check_dim2(to);
@@ -695,7 +695,7 @@ Adj Mesh::ask_adj(Int from, Int to) {
   return derived;
 }
 
-Adj Mesh::ask_adj(Topo_type from_type, Topo_type to_type) {
+Adj Mesh::ask_adj(Topo_type from_type, Topo_type to_type) const {
   OMEGA_H_TIME_FUNCTION;
   check_type2(from_type);
   check_type2(to_type);

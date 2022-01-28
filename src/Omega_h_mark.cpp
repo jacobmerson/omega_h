@@ -9,7 +9,7 @@
 
 namespace Omega_h {
 
-Read<I8> mark_exposed_sides(Mesh* mesh) {
+Read<I8> mark_exposed_sides(Mesh const * mesh) {
   auto ns = mesh->nents(mesh->dim() - 1);
   auto s2sc = mesh->ask_up(mesh->dim() - 1, mesh->dim()).a2ab;
   Write<I8> exposed(ns);

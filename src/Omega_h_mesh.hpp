@@ -117,13 +117,13 @@ class Mesh {
   bool has_adj(Topo_type from_type, Topo_type to_type) const;
   Adj get_adj(Int from, Int to) const;
   Adj get_adj(Topo_type from_type, Topo_type to_type) const;
-  Adj ask_down(Int from, Int to);
-  Adj ask_down(Topo_type from_type, Topo_type to_type);
+  Adj ask_down(Int from, Int to) const;
+  Adj ask_down(Topo_type from_type, Topo_type to_type) const;
   LOs ask_verts_of(Int dim);
   LOs ask_verts_of(Topo_type ent_type);
   LOs ask_elem_verts();
-  Adj ask_up(Int from, Int to);
-  Adj ask_up(Topo_type from_type, Topo_type to_type);
+  Adj ask_up(Int from, Int to) const;
+  Adj ask_up(Topo_type from_type, Topo_type to_type) const;
   Graph ask_star(Int dim);
   Graph ask_dual();
 
@@ -236,10 +236,10 @@ class Mesh {
   void check_type2(Topo_type ent_type) const;
   void add_adj(Int from, Int to, Adj adj);
   void add_adj(Topo_type from_type, Topo_type to_type, Adj adj);
-  Adj derive_adj(Int from, Int to);
-  Adj derive_adj(Topo_type from_type, Topo_type to_type);
-  Adj ask_adj(Int from, Int to);
-  Adj ask_adj(Topo_type from_type, Topo_type to_type);
+  Adj derive_adj(Int from, Int to) const;
+  Adj derive_adj(Topo_type from_type, Topo_type to_type) const;
+  Adj ask_adj(Int from, Int to) const;
+  Adj ask_adj(Topo_type from_type, Topo_type to_type) const;
   void react_to_set_tag(Int dim, std::string const& name);
   void react_to_set_tag(Topo_type ent_type, std::string const& name);
   Omega_h_Family family_;
@@ -252,8 +252,8 @@ class Mesh {
   LO nents_type_[TOPO_TYPES];
   TagVector tags_[DIMS];
   TagVector tags_type_[TOPO_TYPES];
-  AdjPtr adjs_[DIMS][DIMS];
-  AdjPtr adjs_type_[TOPO_TYPES][TOPO_TYPES];
+  AdjPtr mutable adjs_[DIMS][DIMS];
+  AdjPtr mutable adjs_type_[TOPO_TYPES][TOPO_TYPES];
   Remotes owners_[DIMS];
   DistPtr dists_[DIMS];
   RibPtr rib_hints_;
