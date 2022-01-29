@@ -145,12 +145,12 @@ struct MetricEdgeLengths {
   }
 };
 
-Reals measure_edges_real(Mesh* mesh, LOs a2e);
-Reals measure_edges_metric(Mesh* mesh, LOs a2e, Reals metrics);
-Reals measure_edges_metric(Mesh* mesh, LOs a2e);
-Reals measure_edges_real(Mesh* mesh);
-Reals measure_edges_metric(Mesh* mesh);
-Reals measure_edges_metric(Mesh* mesh, Reals metrics);
+Reals measure_edges_real(Mesh const* mesh, LOs a2e);
+Reals measure_edges_metric(Mesh const* mesh, LOs a2e, Reals metrics);
+Reals measure_edges_metric(Mesh const* mesh, LOs a2e);
+Reals measure_edges_real(Mesh const* mesh);
+Reals measure_edges_metric(Mesh const* mesh);
+Reals measure_edges_metric(Mesh const* mesh, Reals metrics);
 
 template <Int sdim, Int edim>
 OMEGA_H_INLINE Real real_simplex_size(Few<Vector<sdim>, edim + 1> p) {
@@ -168,9 +168,9 @@ struct RealSimplexSizes {
   }
 };
 
-Reals measure_ents_real(Mesh* mesh, Int ent_dim, LOs a2e, Reals coords);
-Reals measure_elements_real(Mesh* mesh, LOs a2e);
-Reals measure_elements_real(Mesh* mesh);
+Reals measure_ents_real(Mesh const* mesh, Int ent_dim, LOs a2e, Reals coords);
+Reals measure_elements_real(Mesh const* mesh, LOs a2e);
+Reals measure_elements_real(Mesh const* mesh);
 
 OMEGA_H_INLINE Few<Vector<1>, 1> element_edge_vectors(
     Few<Vector<1>, 2>, Few<Vector<1>, 1> b) {

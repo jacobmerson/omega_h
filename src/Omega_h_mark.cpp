@@ -9,7 +9,7 @@
 
 namespace Omega_h {
 
-Read<I8> mark_exposed_sides(Mesh const * mesh) {
+Read<I8> mark_exposed_sides(Mesh const* mesh) {
   auto ns = mesh->nents(mesh->dim() - 1);
   auto s2sc = mesh->ask_up(mesh->dim() - 1, mesh->dim()).a2ab;
   Write<I8> exposed(ns);
@@ -32,7 +32,7 @@ Read<I8> mark_down(Graph l2h, Read<I8> high_marked) {
 }
 
 Read<I8> mark_down(
-    Mesh* mesh, Int high_dim, Int low_dim, Read<I8> high_marked) {
+    Mesh const* mesh, Int high_dim, Int low_dim, Read<I8> high_marked) {
   OMEGA_H_CHECK(0 <= low_dim);
   OMEGA_H_CHECK(low_dim <= high_dim);
   OMEGA_H_CHECK(high_dim <= 3);
@@ -46,7 +46,7 @@ Read<I8> mark_down(
   return low_marks;
 }
 
-Read<I8> mark_up(Mesh* mesh, Int low_dim, Int high_dim, Read<I8> low_marked) {
+Read<I8> mark_up(Mesh const* mesh, Int low_dim, Int high_dim, Read<I8> low_marked) {
   auto l2h = mesh->ask_down(high_dim, low_dim);
   auto deg = element_degree(mesh->family(), high_dim, low_dim);
   auto hl2l = l2h.ab2b;
@@ -62,7 +62,7 @@ Read<I8> mark_up(Mesh* mesh, Int low_dim, Int high_dim, Read<I8> low_marked) {
   return out;
 }
 
-Read<I8> mark_adj(Mesh* mesh, Int from_dim, Int to_dim, Read<I8> from_marked) {
+Read<I8> mark_adj(Mesh const* mesh, Int from_dim, Int to_dim, Read<I8> from_marked) {
   if (from_dim == to_dim) return from_marked;
   if (from_dim < to_dim) return mark_up(mesh, from_dim, to_dim, from_marked);
   if (from_dim > to_dim) return mark_down(mesh, from_dim, to_dim, from_marked);
@@ -70,7 +70,7 @@ Read<I8> mark_adj(Mesh* mesh, Int from_dim, Int to_dim, Read<I8> from_marked) {
 }
 
 Read<I8> mark_up_all(
-    Mesh* mesh, Int low_dim, Int high_dim, Read<I8> low_marked) {
+    Mesh const* mesh, Int low_dim, Int high_dim, Read<I8> low_marked) {
   auto l2h = mesh->ask_down(high_dim, low_dim);
   auto deg = element_degree(mesh->family(), high_dim, low_dim);
   auto hl2l = l2h.ab2b;
@@ -88,19 +88,19 @@ Read<I8> mark_up_all(
   return out;
 }
 
-Read<I8> mark_by_class_dim(Mesh* mesh, Int ent_dim, Int class_dim) {
+Read<I8> mark_by_class_dim(Mesh const* mesh, Int ent_dim, Int class_dim) {
   auto e2class_dim = mesh->get_array<I8>(ent_dim, "class_dim");
   return each_eq_to(e2class_dim, static_cast<I8>(class_dim));
 }
 
-Read<I8> mark_by_class(Mesh* mesh, Int ent_dim, Int class_dim, I32 class_id) {
+Read<I8> mark_by_class(Mesh const* mesh, Int ent_dim, Int class_dim, I32 class_id) {
   auto e2class_id = mesh->get_array<ClassId>(ent_dim, "class_id");
   auto id_marks = each_eq_to(e2class_id, class_id);
   return land_each(id_marks, mark_by_class_dim(mesh, ent_dim, class_dim));
 }
 
 Read<I8> mark_class_closure(
-    Mesh* mesh, Int ent_dim, Int class_dim, ClassId class_id) {
+    Mesh const* mesh, Int ent_dim, Int class_dim, ClassId class_id) {
   OMEGA_H_CHECK(ent_dim <= class_dim);
   auto eq_marks = mark_by_class(mesh, class_dim, class_dim, class_id);
   if (ent_dim == class_dim) return eq_marks;
@@ -108,7 +108,7 @@ Read<I8> mark_class_closure(
 }
 
 Read<I8> get_eq_marks(
-    Mesh* mesh, Int class_dim, std::vector<ClassId> const& class_ids) {
+    Mesh const* mesh, Int class_dim, std::vector<ClassId> const& class_ids) {
   auto sorted_class_ids = class_ids;
   std::sort(begin(sorted_class_ids), end(sorted_class_ids));
   HostWrite<LO> h_sorted_class_ids(LO(sorted_class_ids.size()));
@@ -130,7 +130,7 @@ Read<I8> get_eq_marks(
   return eq_marks_w;
 }
 
-Read<I8> mark_class_closures(Mesh* mesh, Int ent_dim, Int class_dim,
+Read<I8> mark_class_closures(Mesh const* mesh, Int ent_dim, Int class_dim,
     std::vector<ClassId> const& class_ids) {
   OMEGA_H_CHECK(class_dim >= ent_dim);
   auto eq_marks = get_eq_marks(mesh, class_dim, class_ids);
@@ -138,7 +138,7 @@ Read<I8> mark_class_closures(Mesh* mesh, Int ent_dim, Int class_dim,
   return marks;
 }
 
-Read<I8> mark_class_closures(Mesh* mesh, Int class_dim,
+Read<I8> mark_class_closures(Mesh const* mesh, Int class_dim,
     std::vector<ClassId> const& class_ids, Graph nodes2ents) {
   OMEGA_H_CHECK(nodes2ents.a2ab.exists());
   OMEGA_H_CHECK(nodes2ents.ab2b.exists());
@@ -159,7 +159,7 @@ static std::vector<LO> get_dim_class_ids(
 }
 
 Read<I8> mark_class_closures(
-    Mesh* mesh, Int ent_dim, std::vector<ClassPair> const& class_pairs) {
+    Mesh const* mesh, Int ent_dim, std::vector<ClassPair> const& class_pairs) {
   auto marks = Read<I8>(mesh->nents(ent_dim), I8(0));
   for (Int class_dim = ent_dim; class_dim <= mesh->dim(); ++class_dim) {
     auto dim_class_ids = get_dim_class_ids(class_dim, class_pairs);
@@ -171,7 +171,7 @@ Read<I8> mark_class_closures(
   return marks;
 }
 
-Read<I8> mark_class_closures(Mesh* mesh,
+Read<I8> mark_class_closures(Mesh const* mesh,
     std::vector<ClassPair> const& class_pairs, Graph nodes2ents[4]) {
   auto dim = mesh->dim();
   OMEGA_H_CHECK(nodes2ents[dim].a2ab.exists());
@@ -187,7 +187,7 @@ Read<I8> mark_class_closures(Mesh* mesh,
   return marks;
 }
 
-Read<I8> mark_dual_layers(Mesh* mesh, Read<I8> marks, Int nlayers) {
+Read<I8> mark_dual_layers(Mesh const* mesh, Read<I8> marks, Int nlayers) {
   OMEGA_H_CHECK(mesh->parting() == OMEGA_H_GHOSTED);
   auto dual = mesh->ask_dual();
   for (Int i = 0; i < nlayers; ++i) {
@@ -197,14 +197,14 @@ Read<I8> mark_dual_layers(Mesh* mesh, Read<I8> marks, Int nlayers) {
   return marks;
 }
 
-GO count_owned_marks(Mesh* mesh, Int ent_dim, Read<I8> marks) {
+GO count_owned_marks(Mesh const* mesh, Int ent_dim, Read<I8> marks) {
   if (mesh->could_be_shared(ent_dim)) {
     marks = land_each(marks, mesh->owned(ent_dim));
   }
   return get_sum(mesh->comm(), marks);
 }
 
-Read<I8> mark_sliver_layers(Mesh* mesh, Real qual_ceil, Int nlayers) {
+Read<I8> mark_sliver_layers(Mesh const* mesh, Real qual_ceil, Int nlayers) {
   OMEGA_H_CHECK(mesh->parting() == OMEGA_H_GHOSTED);
   auto quals = mesh->ask_qualities();
   auto elems_are_slivers = each_lt(quals, qual_ceil);

@@ -254,11 +254,11 @@ class Mesh {
   TagVector tags_type_[TOPO_TYPES];
   AdjPtr mutable adjs_[DIMS][DIMS];
   AdjPtr mutable adjs_type_[TOPO_TYPES][TOPO_TYPES];
-  Remotes owners_[DIMS];
-  DistPtr dists_[DIMS];
+  Remotes mutable owners_[DIMS];
+  DistPtr mutable dists_[DIMS];
   RibPtr rib_hints_;
-  ParentPtr parents_[DIMS];
-  ChildrenPtr children_[DIMS][DIMS];
+  ParentPtr mutable parents_[DIMS];
+  ChildrenPtr mutable children_[DIMS][DIMS];
   Library* library_;
   Remotes match_owners_[DIMS];
   LOs model_ents_[DIMS];
@@ -273,18 +273,18 @@ class Mesh {
   void add_coords_mix(Reals array);
   Reals coords_mix() const;
   Read<GO> globals(Int dim) const;
-  Reals ask_lengths();
-  Reals ask_qualities();
-  Reals ask_sizes();
-  Bytes ask_levels(Int dim);
-  Bytes ask_leaves(Int dim);
-  Parents ask_parents(Int child_dim);
-  Children ask_children(Int parent_dim, Int child_dim);
+  Reals ask_lengths() const;
+  Reals ask_qualities() const;
+  Reals ask_sizes() const;
+  Bytes ask_levels(Int dim) const;
+  Bytes ask_leaves(Int dim) const;
+  Parents ask_parents(Int child_dim) const;
+  Children ask_children(Int parent_dim, Int child_dim) const;
   bool has_any_parents() const;
   void set_owners(Int dim, Remotes owners);
-  Remotes ask_owners(Int dim);
-  Read<I8> owned(Int dim);
-  Dist ask_dist(Int dim);
+  Remotes ask_owners(Int dim) const;
+  Read<I8> owned(Int dim) const;
+  Dist ask_dist(Int dim) const;
   Int nghost_layers() const;
   void set_parting(Omega_h_Parting parting_in, Int nlayers, bool verbose);
   void set_parting(Omega_h_Parting parting_in, bool verbose = false);
@@ -292,14 +292,14 @@ class Mesh {
   void balance(Reals weights);
   Graph ask_graph(Int from, Int to);
   template <typename T>
-  Read<T> sync_array(Int ent_dim, Read<T> a, Int width);
+  Read<T> sync_array(Int ent_dim, Read<T> a, Int width) const;
   template <typename T>
   Future<T> isync_array(Int ent_dim, Read<T> a, Int width);
   template <typename T>
   Read<T> sync_subset_array(
       Int ent_dim, Read<T> a_data, LOs a2e, T default_val, Int width);
   template <typename T>
-  Read<T> reduce_array(Int ent_dim, Read<T> a, Int width, Omega_h_Op op);
+  Read<T> reduce_array(Int ent_dim, Read<T> a, Int width, Omega_h_Op op) const;
   template <typename T>
   Read<T> owned_array(Int ent_dim, Read<T> a, Int width);
   void sync_tag(Int dim, std::string const& name);
@@ -383,7 +383,7 @@ __host__
       Int dim, std::string const& name, Read<T> array, bool internal);         \
   extern template void Mesh::set_tag(                                          \
       Topo_type ent_type, std::string const& name, Read<T> array, bool internal);         \
-  extern template Read<T> Mesh::sync_array(Int ent_dim, Read<T> a, Int width); \
+  extern template Read<T> Mesh::sync_array(Int ent_dim, Read<T> a, Int width) const;\
   extern template Future<T> Mesh::isync_array(                                 \
       Int ent_dim, Read<T> a, Int width);                                      \
   extern template Read<T> Mesh::owned_array(                                   \
@@ -391,7 +391,7 @@ __host__
   extern template Read<T> Mesh::sync_subset_array(                             \
       Int ent_dim, Read<T> a_data, LOs a2e, T default_val, Int width);         \
   extern template Read<T> Mesh::reduce_array(                                  \
-      Int ent_dim, Read<T> a, Int width, Omega_h_Op op);                       \
+      Int ent_dim, Read<T> a, Int width, Omega_h_Op op) const;                 \
   extern template void Mesh::change_tagTorc<T>(                                \
       Int ent_dim, Int ncomps, std::string const& name, LOs class_ids);        \
   extern template void Mesh::change_tagToMesh<T>(                              \

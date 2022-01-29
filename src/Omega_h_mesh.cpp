@@ -728,49 +728,64 @@ Read<GO> Mesh::globals(Int ent_dim) const {
   return get_array<GO>(ent_dim, "global");
 }
 
-Reals Mesh::ask_lengths() {
-  if (!has_tag(EDGE, "length")) {
-    auto lengths = measure_edges_metric(this);
-    add_tag(EDGE, "length", 1, lengths);
-  }
-  return get_array<Real>(EDGE, "length");
+// FIXME removed memoization to make function const. It's nonsensical that a function "ask_lengths" is adding a mesh tag with externally visible side effects!
+Reals Mesh::ask_lengths() const {
+  //if (!has_tag(EDGE, "length")) {
+  //  auto lengths = measure_edges_metric(this);
+  //  add_tag(EDGE, "length", 1, lengths);
+  //}
+  //return get_array<Real>(EDGE, "length");
+  return measure_edges_metric(this);
 }
 
-Reals Mesh::ask_qualities() {
-  if (!has_tag(dim(), "quality")) {
-    auto qualities = measure_qualities(this);
-    add_tag(dim(), "quality", 1, qualities);
-  }
-  return get_array<Real>(dim(), "quality");
+// FIXME memoization removed to avoid tag storage which is nonsensical
+Reals Mesh::ask_qualities() const {
+  //if (!has_tag(dim(), "quality")) {
+  //  auto qualities = measure_qualities(this);
+  //}
+  //return get_array<Real>(dim(), "quality");
+  return measure_qualities(this);
 }
 
-Reals Mesh::ask_sizes() {
+// FIXME memoization removed to make function const since tags are used...
+Reals Mesh::ask_sizes() const {
+  /*
   if (!has_tag(dim(), "size")) {
     auto sizes = measure_elements_real(this);
     add_tag(dim(), "size", 1, sizes);
   }
   return get_array<Real>(dim(), "size");
+  */
+  return measure_elements_real(this);
 }
 
-Bytes Mesh::ask_levels(Int ent_dim) {
+// FIXME memoization removed to alleviate side effects by removing use of tags
+Bytes Mesh::ask_levels(Int ent_dim) const {
   check_dim2(ent_dim);
+  /*
   if (!has_tag(ent_dim, "level")) {
     auto levels = Bytes(nents(ent_dim), 0);
     add_tag(ent_dim, "level", 1, levels);
   }
   return get_array<Byte>(ent_dim, "level");
+  */
+  return Bytes(nents(ent_dim), 0);
 }
 
-Bytes Mesh::ask_leaves(Int ent_dim) {
+// FIXME removed memoization to get rid of tag usage in what should be const func
+Bytes Mesh::ask_leaves(Int ent_dim) const {
   check_dim2(ent_dim);
+  /*
   if (!has_tag(ent_dim, "leaf")) {
     auto leaves = Bytes(nents(ent_dim), 1);
     add_tag(ent_dim, "leaf", 1, leaves);
   }
   return get_array<Byte>(ent_dim, "leaf");
+  */
+  return Bytes(nents(ent_dim), 1);
 }
 
-Parents Mesh::ask_parents(Int child_dim) {
+Parents Mesh::ask_parents(Int child_dim) const {
   check_dim2(child_dim);
   if (!parents_[child_dim]) {
     auto parent_idx = LOs(nents(child_dim), -1);
@@ -781,7 +796,7 @@ Parents Mesh::ask_parents(Int child_dim) {
   return *(parents_[child_dim]);
 }
 
-Children Mesh::ask_children(Int parent_dim, Int child_dim) {
+Children Mesh::ask_children(Int parent_dim, Int child_dim) const {
   check_dim2(parent_dim);
   auto nparent_dim_ents = nents(parent_dim);
   auto c2p = ask_parents(child_dim);
@@ -817,7 +832,7 @@ void Mesh::set_match_owners(Int ent_dim, Remotes match_owners) {
   match_owners_[ent_dim] = match_owners;
 }
 
-Remotes Mesh::ask_owners(Int ent_dim) {
+Remotes Mesh::ask_owners(Int ent_dim) const {
   if (!owners_[ent_dim].ranks.exists() || !owners_[ent_dim].idxs.exists()) {
     OMEGA_H_CHECK(comm_->size() == 1);
     owners_[ent_dim] = Remotes(
@@ -846,12 +861,12 @@ c_Remotes Mesh::get_matches(Int ent_dim) {
   return matches_[ent_dim];
 }
 
-Read<I8> Mesh::owned(Int ent_dim) {
+Read<I8> Mesh::owned(Int ent_dim) const {
   auto e2rank = ask_owners(ent_dim).ranks;
   return each_eq_to(e2rank, comm()->rank());
 }
 
-Dist Mesh::ask_dist(Int ent_dim) {
+Dist Mesh::ask_dist(Int ent_dim) const {
   if (!dists_[ent_dim]) {
     auto owners = ask_owners(ent_dim);
     OMEGA_H_CHECK(owners.ranks.exists());
@@ -1021,7 +1036,7 @@ Graph Mesh::ask_graph(Int from, Int to) {
 }
 
 template <typename T>
-Read<T> Mesh::sync_array(Int ent_dim, Read<T> a, Int width) {
+Read<T> Mesh::sync_array(Int ent_dim, Read<T> a, Int width) const {
   if (!could_be_shared(ent_dim)) return a;
   return ask_dist(ent_dim).invert().exch(a, width);
 }
@@ -1051,7 +1066,7 @@ Read<T> Mesh::sync_subset_array(
 }
 
 template <typename T>
-Read<T> Mesh::reduce_array(Int ent_dim, Read<T> a, Int width, Omega_h_Op op) {
+Read<T> Mesh::reduce_array(Int ent_dim, Read<T> a, Int width, Omega_h_Op op) const {
   if (!could_be_shared(ent_dim)) return a;
   return ask_dist(ent_dim).exch_reduce(a, width, op);
 }
@@ -1349,13 +1364,13 @@ __host__
       Int dim, std::string const& name, Read<T> array, bool internal);         \
   template void Mesh::set_tag(                                                 \
       Topo_type ent_type, std::string const& name, Read<T> array, bool internal);         \
-  template Read<T> Mesh::sync_array(Int ent_dim, Read<T> a, Int width);        \
+  template Read<T> Mesh::sync_array(Int ent_dim, Read<T> a, Int width) const;  \
   template Future<T> Mesh::isync_array(Int ent_dim, Read<T> a, Int width);     \
   template Read<T> Mesh::owned_array(Int ent_dim, Read<T> a, Int width);       \
   template Read<T> Mesh::sync_subset_array(                                    \
       Int ent_dim, Read<T> a_data, LOs a2e, T default_val, Int width);         \
   template Read<T> Mesh::reduce_array(                                         \
-      Int ent_dim, Read<T> a, Int width, Omega_h_Op op);
+      Int ent_dim, Read<T> a, Int width, Omega_h_Op op) const;
 OMEGA_H_INST(I8)
 OMEGA_H_INST(I32)
 OMEGA_H_INST(I64)
