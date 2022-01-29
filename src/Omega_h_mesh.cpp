@@ -128,13 +128,13 @@ void Mesh::set_model_matches(Int ent_dim, LOs matches) {
   model_matches_[ent_dim] = matches;
 }
 
-LOs Mesh::get_model_ents(Int ent_dim) {
+LOs Mesh::get_model_ents(Int ent_dim) const{
   OMEGA_H_TIME_FUNCTION;
   check_dim(ent_dim);
   return model_ents_[ent_dim];
 }
 
-LOs Mesh::get_model_matches(Int ent_dim) {
+LOs Mesh::get_model_matches(Int ent_dim) const{
   OMEGA_H_TIME_FUNCTION;
   check_dim(ent_dim);
   return model_matches_[ent_dim];
@@ -728,61 +728,46 @@ Read<GO> Mesh::globals(Int ent_dim) const {
   return get_array<GO>(ent_dim, "global");
 }
 
-// FIXME removed memoization to make function const. It's nonsensical that a function "ask_lengths" is adding a mesh tag with externally visible side effects!
 Reals Mesh::ask_lengths() const {
-  //if (!has_tag(EDGE, "length")) {
-  //  auto lengths = measure_edges_metric(this);
-  //  add_tag(EDGE, "length", 1, lengths);
-  //}
-  //return get_array<Real>(EDGE, "length");
-  return measure_edges_metric(this);
-}
-
-// FIXME memoization removed to avoid tag storage which is nonsensical
-Reals Mesh::ask_qualities() const {
-  //if (!has_tag(dim(), "quality")) {
-  //  auto qualities = measure_qualities(this);
-  //}
-  //return get_array<Real>(dim(), "quality");
-  return measure_qualities(this);
-}
-
-// FIXME memoization removed to make function const since tags are used...
-Reals Mesh::ask_sizes() const {
-  /*
-  if (!has_tag(dim(), "size")) {
-    auto sizes = measure_elements_real(this);
-    add_tag(dim(), "size", 1, sizes);
+  if(lengths_ == nullptr)
+  {
+    lengths_ = std::make_shared<Reals>(measure_edges_metric(this));
   }
-  return get_array<Real>(dim(), "size");
-  */
-  return measure_elements_real(this);
+  return *lengths_;
 }
 
-// FIXME memoization removed to alleviate side effects by removing use of tags
+Reals Mesh::ask_qualities() const {
+  if(quality_ == nullptr)
+  {
+    quality_ = std::make_shared<Reals>(measure_qualities(this));
+  }
+  return *quality_;
+}
+
+Reals Mesh::ask_sizes() const {
+  if (sizes_ == nullptr){
+    sizes_ = std::make_shared<Reals>(measure_elements_real(this));
+  }
+  return *sizes_;
+}
+
 Bytes Mesh::ask_levels(Int ent_dim) const {
   check_dim2(ent_dim);
-  /*
-  if (!has_tag(ent_dim, "level")) {
-    auto levels = Bytes(nents(ent_dim), 0);
-    add_tag(ent_dim, "level", 1, levels);
+  if(levels_[ent_dim] == nullptr)
+  {
+    //levels_[ent_dim] = std::make_shared<Bytes>(Bytes(nents(ent_dim), 0));
+    levels_[ent_dim] = std::make_shared<Bytes>(nents(ent_dim), 0);
   }
-  return get_array<Byte>(ent_dim, "level");
-  */
-  return Bytes(nents(ent_dim), 0);
+  return *levels_[ent_dim];
 }
 
-// FIXME removed memoization to get rid of tag usage in what should be const func
 Bytes Mesh::ask_leaves(Int ent_dim) const {
   check_dim2(ent_dim);
-  /*
-  if (!has_tag(ent_dim, "leaf")) {
-    auto leaves = Bytes(nents(ent_dim), 1);
-    add_tag(ent_dim, "leaf", 1, leaves);
+  if(leaves_[ent_dim] == nullptr) {
+    //return Bytes(nents(ent_dim), 1);
+    leaves_[ent_dim] = std::make_shared<Bytes>(nents(ent_dim), 1);
   }
-  return get_array<Byte>(ent_dim, "leaf");
-  */
-  return Bytes(nents(ent_dim), 1);
+  return *leaves_[ent_dim];
 }
 
 Parents Mesh::ask_parents(Int child_dim) const {
@@ -855,7 +840,7 @@ void Mesh::set_matches(Int ent_dim, c_Remotes matches) {
   matches_[ent_dim] = matches;
 }
 
-c_Remotes Mesh::get_matches(Int ent_dim) {
+c_Remotes Mesh::get_matches(Int ent_dim) const{
   check_dim2(ent_dim);
   check_dim2(ent_dim + 1);
   return matches_[ent_dim];
@@ -1273,21 +1258,21 @@ Reals average_field(Mesh* mesh, Int ent_dim, Int ncomps, Reals v2x) {
   return average_field(mesh, ent_dim, a2e, ncomps, v2x);
 }
 
-void get_all_dim_tags(Mesh* mesh, Int dim, TagSet* tags) {
+void get_all_dim_tags(Mesh const* mesh, Int dim, TagSet* tags) {
   for (Int j = 0; j < mesh->ntags(dim); ++j) {
     auto tagbase = mesh->get_tag(dim, j);
     (*tags)[size_t(dim)].insert(tagbase->name());
   }
 }
 
-void get_all_type_tags(Mesh* mesh, Int dim, Topo_type ent_type, TagSet* tags) {
+void get_all_type_tags(Mesh const* mesh, Int dim, Topo_type ent_type, TagSet* tags) {
   for (Int j = 0; j < mesh->ntags(ent_type); ++j) {
     auto tagbase = mesh->get_tag(ent_type, j);
     (*tags)[size_t(dim)].insert(tagbase->name());
   }
 }
 
-TagSet get_all_mesh_tags(Mesh* mesh) {
+TagSet get_all_mesh_tags(Mesh const* mesh) {
   TagSet out;
   for (Int i = 0; i <= mesh->dim(); ++i) {
     for (Int j = 0; j < mesh->ntags(i); ++j) {
@@ -1298,7 +1283,7 @@ TagSet get_all_mesh_tags(Mesh* mesh) {
   return out;
 }
 
-void ask_for_mesh_tags(Mesh* mesh, TagSet const& tags) {
+void ask_for_mesh_tags(Mesh const* mesh, TagSet const& tags) {
   if (tags[EDGE].count("length")) mesh->ask_lengths();
   if (tags[size_t(mesh->dim())].count("quality")) mesh->ask_qualities();
 }

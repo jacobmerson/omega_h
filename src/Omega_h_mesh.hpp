@@ -252,19 +252,26 @@ class Mesh {
   LO nents_type_[TOPO_TYPES];
   TagVector tags_[DIMS];
   TagVector tags_type_[TOPO_TYPES];
-  AdjPtr mutable adjs_[DIMS][DIMS];
-  AdjPtr mutable adjs_type_[TOPO_TYPES][TOPO_TYPES];
-  Remotes mutable owners_[DIMS];
-  DistPtr mutable dists_[DIMS];
   RibPtr rib_hints_;
-  ParentPtr mutable parents_[DIMS];
-  ChildrenPtr mutable children_[DIMS][DIMS];
   Library* library_;
+  // FIXME using Remotes and LOs directly here means we are making expensive copies rather than using the shared_ptr for COW like everything else
   Remotes match_owners_[DIMS];
   LOs model_ents_[DIMS];
   LOs model_matches_[DIMS-1];
 
+  // cache data
   AdjPtr mutable revClass_[DIMS];
+  AdjPtr mutable adjs_[DIMS][DIMS];
+  AdjPtr mutable adjs_type_[TOPO_TYPES][TOPO_TYPES];
+  Remotes mutable owners_[DIMS];
+  DistPtr mutable dists_[DIMS];
+  ParentPtr mutable parents_[DIMS];
+  ChildrenPtr mutable children_[DIMS][DIMS];
+  std::shared_ptr<Reals> mutable lengths_;
+  std::shared_ptr<Reals> mutable quality_;
+  std::shared_ptr<Reals> mutable sizes_;
+  std::shared_ptr<Bytes> mutable levels_[DIMS];
+  std::shared_ptr<Bytes> mutable leaves_[DIMS];
 
  public:
   void add_coords(Reals array);
@@ -318,13 +325,13 @@ class Mesh {
 
   void set_model_ents(Int ent_dim, LOs Ids); 
   void set_model_matches(Int ent_dim, LOs matches); 
-  LOs get_model_ents(Int ent_dim); 
-  LOs get_model_matches(Int ent_dim); 
+  LOs get_model_ents(Int ent_dim) const;
+  LOs get_model_matches(Int ent_dim) const;
   void set_match_owners(Int dim, Remotes owners);
   Remotes ask_match_owners(Int dim);
   c_Remotes matches_[DIMS];
   void set_matches(Int dim, c_Remotes matches);
-  c_Remotes get_matches(Int dim);
+  c_Remotes get_matches(Int dim) const;
   void swap_root_owner(Int dim);
   void sync_tag_matched(Int dim, std::string const& name);
   template <typename T>
@@ -343,10 +350,10 @@ Reals average_field(Mesh* mesh, Int dim, Int ncomps, Reals v2x);
 
 using TagSet = std::array<std::set<std::string>, DIMS>;
 
-void get_all_dim_tags(Mesh* mesh, Int dim, TagSet* tags);
-void get_all_type_tags(Mesh* mesh, Int dim, Topo_type ent_type, TagSet* tags);
-TagSet get_all_mesh_tags(Mesh* mesh);
-void ask_for_mesh_tags(Mesh* mesh, TagSet const& tags);
+void get_all_dim_tags(Mesh const* mesh, Int dim, TagSet* tags);
+void get_all_type_tags(Mesh const* mesh, Int dim, Topo_type ent_type, TagSet* tags);
+TagSet get_all_mesh_tags(Mesh const* mesh);
+void ask_for_mesh_tags(Mesh const* mesh, TagSet const& tags);
 
 void reorder_by_hilbert(Mesh* mesh);
 void reorder_by_globals(Mesh* mesh);

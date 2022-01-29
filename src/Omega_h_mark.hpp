@@ -8,6 +8,7 @@
 
 namespace Omega_h {
 
+// should this be Graph&? Graph is potentially a large structure
 Read<I8> mark_down(Graph low2high, Read<I8> marked_highs);
 Read<I8> mark_down(
     Mesh const* mesh, Int high_dim, Int low_dim, Read<I8> marked_highs);
