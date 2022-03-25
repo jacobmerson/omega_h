@@ -51,7 +51,12 @@ void transfer_levels(Mesh* old_mesh, Mesh* new_mesh, Int prod_dim,
     parallel_for(nmods_of_dim, f);
     offset += nprods_per_mod * nmods_of_dim;
   }
-  auto tag = old_mesh->get_tag<Byte>(prod_dim, "level");
+  //TODO this is somewhat wasteful since transfer common will just extract
+  // array from the tag. Refactor the transfer_common functions may be beneficial
+  // especially because they copy a lot of data.
+  //old_mesh->add_tag(prod_dim,"level",1,old_mesh->ask_levels(prod_dim));
+  //auto tag = old_mesh->get_tag<Byte>(prod_dim, "level");
+  auto* tag = old_mesh->ask_levels_tag(prod_dim);
   transfer_common2(old_mesh, new_mesh, prod_dim, same_ents2old_ents,
       same_ents2new_ents, tag, new_data);
 }
@@ -85,7 +90,8 @@ void transfer_leaves(Mesh* old_mesh, Mesh* new_mesh, Int prod_dim,
     new_data[mod_idx] = 0;
   };
   parallel_for(mods2mds[prod_dim].size(), f);
-  new_mesh->add_tag<Byte>(prod_dim, "leaf", 1, new_data, true);
+  //new_mesh->add_tag<Byte>(prod_dim, "leaf", 1, new_data, true);
+  new_mesh->set_leaves(prod_dim,new_data);
 }
 
 void transfer_parents(Mesh* old_mesh, Mesh* new_mesh, Few<LOs, 4> mods2mds,

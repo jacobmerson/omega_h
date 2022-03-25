@@ -26,6 +26,16 @@ static void add_solution(Mesh* mesh) {
   mesh->add_tag(VERT, "solution", 1, sol);
 }
 
+static void add_length(Mesh* mesh) {
+  auto lengths = mesh->ask_lengths();
+  mesh->add_tag(EDGE,"length",1,lengths);
+}
+
+static void add_size(Mesh * mesh) {
+  auto sizes = mesh->ask_sizes();
+  mesh->add_tag(mesh->dim(),"size",1,sizes);
+}
+
 static void add_metric(Mesh* mesh) {
   MetricInput input;
   input.sources.push_back(MetricSource{OMEGA_H_VARIATION, 1.0, "solution"});
@@ -68,6 +78,8 @@ int main(int argc, char** argv) {
   if (world->rank() == 0) {
     std::cout << "total time: " << (t1 - t0) << " seconds\n";
   }
+  add_length(&mesh);
+  add_size(&mesh);
   bool ok = check_regression("gold_1d", &mesh);
   if (!ok) return 2;
   return 0;

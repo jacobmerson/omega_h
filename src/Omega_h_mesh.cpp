@@ -323,17 +323,25 @@ void Mesh::react_to_set_tag(Int ent_dim, std::string const& name) {
   /* hardcoded cache invalidations */
   bool is_coordinates = (name == "coordinates");
   if ((ent_dim == VERT) && (is_coordinates || (name == "metric"))) {
+    std::cerr<<"Reacting to tag set 1.1. Invalidating caches!\n";
+    lengths_.reset();
+    quality_.reset();
     remove_tag(EDGE, "length");
     remove_tag(dim(), "quality");
   }
   if ((ent_dim == VERT) && is_coordinates) {
+    std::cerr<<"Reacting to tag set 1.2. Invalidating caches!\n";
     remove_tag(dim(), "size");
+    sizes_.reset();
   }
 }
 
 void Mesh::react_to_set_tag(Topo_type ent_type, std::string const& name) {
   bool is_coordinates = (name == "coordinates");
   if ((int(ent_type) == 0) && (is_coordinates || (name == "metric"))) {
+    std::cerr<<"Reacting to tag set 2.1. Invalidating caches!\n";
+    quality_.reset();
+    lengths_.reset();
     remove_tag(Topo_type::edge, "length");
 
     remove_tag(Topo_type::pyramid, "quality");
@@ -344,6 +352,8 @@ void Mesh::react_to_set_tag(Topo_type ent_type, std::string const& name) {
     remove_tag(Topo_type::triangle, "quality");
   }
   if ((int(ent_type) == 0) && is_coordinates) {
+    std::cerr<<"Reacting to tag set 2.2. Invalidating caches!\n";
+    sizes_.reset();
     remove_tag(Topo_type::pyramid, "size");
     remove_tag(Topo_type::wedge, "size");
     remove_tag(Topo_type::hexahedron, "size");
@@ -756,18 +766,27 @@ Bytes Mesh::ask_levels(Int ent_dim) const {
   if(levels_[ent_dim] == nullptr)
   {
     //levels_[ent_dim] = std::make_shared<Bytes>(Bytes(nents(ent_dim), 0));
-    levels_[ent_dim] = std::make_shared<Bytes>(nents(ent_dim), 0);
+    levels_[ent_dim] = std::make_shared<Tag<Byte>>("level",1);
+    levels_[ent_dim]->set_array(Bytes(nents(ent_dim), 0));
   }
-  return *levels_[ent_dim];
+  return levels_[ent_dim]->array();
+  //return *levels_[ent_dim];
 }
 
-Bytes Mesh::ask_leaves(Int ent_dim) const {
+Bytes Mesh::ask_leaves(Int ent_dim) {
   check_dim2(ent_dim);
   if(leaves_[ent_dim] == nullptr) {
-    //return Bytes(nents(ent_dim), 1);
-    leaves_[ent_dim] = std::make_shared<Bytes>(nents(ent_dim), 1);
+    //leaves_[ent_dim] = std::make_shared<Bytes>(nents(ent_dim), 1);
+    leaves_[ent_dim] = std::make_shared<Tag<Byte>>("leaf",1);
+    leaves_[ent_dim]->set_array(Bytes(nents(ent_dim),1));
   }
-  return *leaves_[ent_dim];
+  return leaves_[ent_dim]->array();
+  //return *leaves_[ent_dim];
+  //if (!has_tag(ent_dim, "leaf")) {
+  //  auto leaves = Bytes(nents(ent_dim), 1);
+  //  add_tag(ent_dim, "leaf", 1, leaves);
+  //}
+  //return get_array<Byte>(ent_dim, "leaf");
 }
 
 Parents Mesh::ask_parents(Int child_dim) const {
@@ -1219,6 +1238,16 @@ Real Mesh::imbalance(Int ent_dim) const {
   auto n = comm_->size();
   auto a = s / n;
   return m / a;
+}
+void Mesh::set_leaves(Int ent_dim, Bytes data) {
+  check_dim2(ent_dim);
+  if(leaves_[ent_dim] == nullptr) {ask_leaves(ent_dim);}
+  leaves_[ent_dim]->set_array(data);
+}
+void Mesh::set_levels(Int ent_dim, Bytes data) {
+  check_dim2(ent_dim);
+  if(levels_[ent_dim] == nullptr){ask_leaves(ent_dim);}
+  levels_[ent_dim]->set_array(data);
 }
 
 bool can_print(Mesh* mesh) {

@@ -47,6 +47,8 @@ class Mesh {
   void set_ents(Int ent_dim, Adj down);
   void set_ents(Topo_type high_type, Topo_type low_type, Adj h2l);
   void set_parents(Int ent_dim, Parents parents);
+  void set_leaves(Int ent_dim, Bytes data);
+  void set_levels(Int ent_dim, Bytes data);
   Library* library() const;
   CommPtr comm() const;
   Omega_h_Parting parting() const;
@@ -270,8 +272,14 @@ class Mesh {
   std::shared_ptr<Reals> mutable lengths_;
   std::shared_ptr<Reals> mutable quality_;
   std::shared_ptr<Reals> mutable sizes_;
-  std::shared_ptr<Bytes> mutable levels_[DIMS];
-  std::shared_ptr<Bytes> mutable leaves_[DIMS];
+  // leaves and levels are a bit strange as they aren't exactly cache data and you
+  // cannot directly recompute them such that you need to track them with modification
+  // they are specific to AMR usage of the mesh
+  std::shared_ptr<Tag<Byte>> mutable levels_[DIMS];
+  std::shared_ptr<Tag<Byte>> mutable leaves_[DIMS];
+  //std::shared_ptr<Bytes> mutable levels_[DIMS];
+  //std::shared_ptr<Bytes> mutable leaves_[DIMS];
+
 
  public:
   void add_coords(Reals array);
@@ -284,7 +292,8 @@ class Mesh {
   Reals ask_qualities() const;
   Reals ask_sizes() const;
   Bytes ask_levels(Int dim) const;
-  Bytes ask_leaves(Int dim) const;
+  Tag<Byte> const* ask_levels_tag(Int dim) const {OMEGA_H_CHECK(levels_[dim] !=nullptr); return levels_[dim].get();}
+  Bytes ask_leaves(Int dim);
   Parents ask_parents(Int child_dim) const;
   Children ask_children(Int parent_dim, Int child_dim) const;
   bool has_any_parents() const;
