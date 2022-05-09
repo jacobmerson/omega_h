@@ -13,72 +13,67 @@ void unmap_tags(
     Mesh* old_mesh, Mesh* new_mesh, Int ent_dim, LOs new_ents2old_ents) {
   for (Int i = 0; i < old_mesh->ntags(ent_dim); ++i) {
     auto tag = old_mesh->get_tag(ent_dim, i);
+    const auto name = tag->name();
+    const auto ncomps = tag->ncomps();
+    const auto class_ids = tag->class_ids();
     if (is<I8>(tag)) {
 
-      size_t found = (tag->name().find("_rc"));
+      size_t found = (name.find("_rc"));
       if (found != std::string::npos) {
         if (old_mesh->nents(ent_dim)) 
-          old_mesh->change_tagToMesh<I8> (ent_dim, tag->ncomps(), tag->name(),
-                                          tag->class_ids());
+          old_mesh->change_tagToMesh<I8> (ent_dim, ncomps, name, class_ids);
       }
 
-      new_mesh->add_tag<I8>(ent_dim, tag->name(), tag->ncomps(),
-          unmap(new_ents2old_ents, as<I8>(tag)->array(), tag->ncomps()));
+      new_mesh->add_tag<I8>(ent_dim, name, ncomps,
+          unmap(new_ents2old_ents, old_mesh->get_array<I8>(ent_dim,name), ncomps));
 
       if (found != std::string::npos) {
-        new_mesh->change_tagTorc<I8> (ent_dim, tag->ncomps(), tag->name(),
-                                      tag->class_ids());
+        new_mesh->change_tagTorc<I8> (ent_dim, ncomps, name, class_ids);
       }
 
     } else if (is<I32>(tag)) {
 
-      size_t found = (tag->name().find("_rc"));
+      size_t found = (name.find("_rc"));
       if (found != std::string::npos) {
         if (old_mesh->nents(ent_dim)) 
-          old_mesh->change_tagToMesh<I32> (ent_dim, tag->ncomps(), tag->name(),
-                                           tag->class_ids());
+          old_mesh->change_tagToMesh<I32> (ent_dim, ncomps, name, class_ids);
       }
 
-      new_mesh->add_tag<I32>(ent_dim, tag->name(), tag->ncomps(),
-          unmap(new_ents2old_ents, as<I32>(tag)->array(), tag->ncomps()));
+      new_mesh->add_tag<I32>(ent_dim, name, ncomps,
+          unmap(new_ents2old_ents, old_mesh->get_array<I32>(ent_dim,name), ncomps));
 
       if (found != std::string::npos) {
-        new_mesh->change_tagTorc<I32> (ent_dim, tag->ncomps(),
-                                             tag->name(), tag->class_ids());
+        new_mesh->change_tagTorc<I32> (ent_dim, ncomps, name, class_ids);
       }
 
     } else if (is<I64>(tag)) {
 
-      size_t found = (tag->name().find("_rc"));
+      size_t found = (name.find("_rc"));
       if (found != std::string::npos) {
         if (old_mesh->nents(ent_dim)) 
-          old_mesh->change_tagToMesh<I64> (ent_dim, tag->ncomps(), tag->name(),
-                                           tag->class_ids());
+          old_mesh->change_tagToMesh<I64> (ent_dim, ncomps, name, class_ids);
       }
 
-      new_mesh->add_tag<I64>(ent_dim, tag->name(), tag->ncomps(),
-          unmap(new_ents2old_ents, as<I64>(tag)->array(), tag->ncomps()));
+      new_mesh->add_tag<I64>(ent_dim, name, ncomps,
+          unmap(new_ents2old_ents, old_mesh->get_array<I64>(ent_dim,name), ncomps));
 
       if (found != std::string::npos) {
-        new_mesh->change_tagTorc<I64> (ent_dim, tag->ncomps(),
-                                             tag->name(), tag->class_ids());
+        new_mesh->change_tagTorc<I64> (ent_dim, ncomps, name, class_ids);
       }
 
     } else if (is<Real>(tag)) {
 
-      size_t found = (tag->name().find("_rc"));
+      size_t found = (name.find("_rc"));
       if (found != std::string::npos) {
         if (old_mesh->nents(ent_dim)) 
-          old_mesh->change_tagToMesh<Real> (ent_dim, tag->ncomps(),
-                                            tag->name(), tag->class_ids());
+          old_mesh->change_tagToMesh<Real> (ent_dim, ncomps, name, class_ids);
       }
 
-      new_mesh->add_tag<Real>(ent_dim, tag->name(), tag->ncomps(),
-          unmap(new_ents2old_ents, as<Real>(tag)->array(), tag->ncomps()));
+      new_mesh->add_tag<Real>(ent_dim, name, ncomps,
+          unmap(new_ents2old_ents, old_mesh->get_array<Real>(ent_dim,name), ncomps));
 
       if (found != std::string::npos) {
-        new_mesh->change_tagTorc<Real> (ent_dim, tag->ncomps(),
-                                              tag->name(), tag->class_ids());
+        new_mesh->change_tagTorc<Real> (ent_dim, ncomps, name, class_ids);
       }
 
     }

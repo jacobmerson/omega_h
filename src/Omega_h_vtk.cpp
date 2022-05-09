@@ -267,21 +267,19 @@ void write_tag(
     Mesh *mesh, bool compress) {
   OMEGA_H_TIME_FUNCTION;
 
-  auto ncomps = tag->ncomps();
-  auto name = tag->name();
-  auto class_ids = tag->class_ids();
+  const auto ncomps = tag->ncomps();
+  const auto name = tag->name();
+  const auto class_ids = tag->class_ids();
   //TODO: write class id info for rc tag to file
 
   if (is<I8>(tag)) {
 
-    size_t found = (tag->name()).find("_rc");
+    size_t found = (name).find("_rc");
     if (found != std::string::npos) {
-      mesh->change_tagToMesh<I8> (ent_dim, tag->ncomps(), tag->name(),
-                                  tag->class_ids());
+      mesh->change_tagToMesh<I8> (ent_dim, ncomps, name, class_ids);
     }
 
-    write_array(
-        stream, tag->name(), tag->ncomps(), as<I8>(tag)->array(), compress);
+    write_array(stream, name, ncomps, mesh->get_array<I8>(ent_dim,name), compress);
 
     if (found != std::string::npos) {
       mesh->change_tagTorc<I8> (ent_dim, ncomps, name, class_ids);
@@ -289,14 +287,14 @@ void write_tag(
 
   } else if (is<I32>(tag)) {
 
-    size_t found = (tag->name()).find("_rc");
+    size_t found = (name).find("_rc");
     if (found != std::string::npos) {
-      mesh->change_tagToMesh<I32> (ent_dim, tag->ncomps(), tag->name(),
-                                   tag->class_ids());
+      mesh->change_tagToMesh<I32> (ent_dim, ncomps, name,
+                                   class_ids);
     }
 
     write_array(
-        stream, tag->name(), tag->ncomps(), as<I32>(tag)->array(), compress);
+        stream, name, ncomps, mesh->get_array<I32>(ent_dim,name), compress);
 
     if (found != std::string::npos) {
       mesh->change_tagTorc<I32> (ent_dim, ncomps, name, class_ids);
@@ -304,14 +302,14 @@ void write_tag(
 
   } else if (is<I64>(tag)) {
 
-    size_t found = (tag->name()).find("_rc");
+    size_t found = (name).find("_rc");
     if (found != std::string::npos) {
-      mesh->change_tagToMesh<I64> (ent_dim, tag->ncomps(), tag->name(),
-                                   tag->class_ids());
+      mesh->change_tagToMesh<I64> (ent_dim, ncomps, name,
+                                   class_ids);
     }
 
-    write_array(
-        stream, tag->name(), tag->ncomps(), as<I64>(tag)->array(), compress);
+    // don't use array from "tag" b/c change_tagToMesh invalidates tag variable
+    write_array(stream, name, ncomps, mesh->get_array<I64>(ent_dim,name), compress);
 
     if (found != std::string::npos) {
       mesh->change_tagTorc<I64> (ent_dim, ncomps, name, class_ids);
@@ -319,31 +317,30 @@ void write_tag(
 
   } else if (is<Real>(tag)) {
   
-    size_t found = (tag->name()).find("_rc");
+    size_t found = (name).find("_rc");
     if (found != std::string::npos) {
-      mesh->change_tagToMesh<Real> (ent_dim, tag->ncomps(), tag->name(),
-                                    tag->class_ids());
+      mesh->change_tagToMesh<Real> (ent_dim, ncomps, name,
+                                    class_ids);
     }
 
-    Reals array = as<Real>(tag)->array();
+    // don't use array from "tag" b/c change_tagToMesh creates new tag
+    auto array = mesh->get_array<Real>(ent_dim,name);
     if (1 < space_dim && space_dim < 3) {
-      if (tag->ncomps() == space_dim) {
+      if (ncomps == space_dim) {
         // VTK / ParaView expect vector fields to have 3 components
         // regardless of whether this is a 2D mesh or not.
         // this filter adds a 3rd zero component to any
         // fields with 2 components for 2D meshes
-        write_array(stream, tag->name(), 3, resize_vectors(array, space_dim, 3),
-            compress);
-      } else if (tag->ncomps() == symm_ncomps(space_dim)) {
+        write_array(stream, name, 3, resize_vectors(array, space_dim, 3),compress);
+      } else if (ncomps == symm_ncomps(space_dim)) {
         // Likewise, ParaView has component names specially set up for
         // 3D symmetric tensors
-        write_array(stream, tag->name(), symm_ncomps(3),
-            resize_symms(array, space_dim, 3), compress);
+        write_array(stream, name, symm_ncomps(3), resize_symms(array, space_dim, 3), compress);
       } else {
-        write_array(stream, tag->name(), tag->ncomps(), array, compress);
+        write_array(stream, name, ncomps, array, compress);
       }
     } else {
-      write_array(stream, tag->name(), tag->ncomps(), array, compress);
+      write_array(stream, name, ncomps, array, compress);
     }
 
     if (found != std::string::npos) {

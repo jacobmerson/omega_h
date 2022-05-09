@@ -173,7 +173,7 @@ Adj Mesh::ask_revClass (Int edim, LOs class_ids) {
 template <typename T>
 void Mesh::change_tagTorc(Int ent_dim, Int ncomps, std::string const &name,
                           LOs class_ids) {
-
+  std::cout<<"CHANGING TO RC BASE"<<std::endl;
   OMEGA_H_TIME_FUNCTION;
   auto mesh_field = get_array<T>(ent_dim, name);
   OMEGA_H_CHECK (mesh_field.size() == nents(ent_dim)*ncomps);
@@ -202,6 +202,7 @@ void Mesh::change_tagTorc(Int ent_dim, Int ncomps, std::string const &name,
 template <typename T>
 void Mesh::change_tagToMesh(Int ent_dim, Int ncomps, std::string const &name,
                             LOs class_ids) {
+  std::cout<<"CHANGING TO Mesh BASE"<<std::endl;
 
   OMEGA_H_TIME_FUNCTION;
   auto rc_field = get_array<T>(ent_dim, name);
@@ -365,68 +366,72 @@ void Mesh::reduce_rcField(Int ent_dim, std::string const& name,
   }
 
   auto tagbase = get_tagbase(ent_dim, new_name);
+  const auto class_ids = tagbase->class_ids();
+  const auto ncomps = tagbase->ncomps();
   switch (tagbase->type()) {
     case OMEGA_H_I8: {
 
       if (nents(ent_dim)) {
-        change_tagToMesh<I8> (ent_dim, tagbase->ncomps(), new_name,
-                              tagbase->class_ids());
+        change_tagToMesh<I8> (ent_dim, ncomps, new_name,
+                              class_ids);
       }
 
+      
+
       auto out = reduce_array(
-          ent_dim, as<I8>(tagbase)->array(), tagbase->ncomps(), op);
+          ent_dim, get_array<I8>(ent_dim,name), ncomps, op);
       set_tag(ent_dim, new_name, out);
 
-      change_tagTorc<I8> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+      change_tagTorc<I8> (ent_dim, ncomps, new_name,
+                          class_ids);
 
       break;
     }
     case OMEGA_H_I32: {
 
       if (nents(ent_dim)) {
-        change_tagToMesh<I32> (ent_dim, tagbase->ncomps(), new_name,
-                              tagbase->class_ids());
+        change_tagToMesh<I32> (ent_dim, ncomps, new_name,
+                              class_ids);
       }
 
       auto out = reduce_array(
-          ent_dim, as<I32>(tagbase)->array(), tagbase->ncomps(), op);
+          ent_dim, get_array<I32>(ent_dim,name), ncomps, op);
       set_tag(ent_dim, new_name, out);
 
-      change_tagTorc<I32> (ent_dim, tagbase->ncomps(), new_name,
-                           tagbase->class_ids());
+      change_tagTorc<I32> (ent_dim, ncomps, new_name,
+                           class_ids);
 
       break;
     }
     case OMEGA_H_I64: {
 
       if (nents(ent_dim)) {
-        change_tagToMesh<I64> (ent_dim, tagbase->ncomps(), new_name,
-                               tagbase->class_ids());
+        change_tagToMesh<I64> (ent_dim, ncomps, new_name,
+                               class_ids);
       }
 
       auto out = reduce_array(
-          ent_dim, as<I64>(tagbase)->array(), tagbase->ncomps(), op);
+          ent_dim, get_array<I64>(ent_dim,name), ncomps, op);
       set_tag(ent_dim, new_name, out);
 
-      change_tagTorc<I64> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+      change_tagTorc<I64> (ent_dim, ncomps, new_name,
+                          class_ids);
 
       break;
     }
     case OMEGA_H_F64: {
 
       if (nents(ent_dim)) { 
-        change_tagToMesh<Real> (ent_dim, tagbase->ncomps(), new_name, 
-                                tagbase->class_ids());
+        change_tagToMesh<Real> (ent_dim, ncomps, new_name, 
+                                class_ids);
       }
 
       auto out = reduce_array(
-          ent_dim, as<Real>(tagbase)->array(), tagbase->ncomps(), op);
+          ent_dim, get_array<Real>(ent_dim,name), ncomps, op);
       set_tag(ent_dim, new_name, out);
 
-      change_tagTorc<Real> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+      change_tagTorc<Real> (ent_dim, ncomps, new_name,
+                          class_ids);
 
       break;
     }
@@ -447,68 +452,70 @@ void Mesh::sync_rcField(Int ent_dim, std::string const& name) {
   }
 
   auto tagbase = get_tagbase(ent_dim, new_name);
+  const auto ncomps = tagbase->ncomps();
+  const auto class_ids = tagbase->class_ids();
   switch (tagbase->type()) {
     case OMEGA_H_I8: {
 
       if (nents(ent_dim)) {
-        change_tagToMesh<I8> (ent_dim, tagbase->ncomps(), new_name,
-                              tagbase->class_ids());
+        change_tagToMesh<I8> (ent_dim, ncomps, new_name,
+                              class_ids);
       }
 
       auto out =
-          sync_array(ent_dim, as<I8>(tagbase)->array(), tagbase->ncomps());
+          sync_array(ent_dim, get_array<I8>(ent_dim,name), ncomps);
       set_tag(ent_dim, new_name, out);
 
-      change_tagTorc<I8> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+      change_tagTorc<I8> (ent_dim, ncomps, new_name,
+                          class_ids);
 
       break;
     }
     case OMEGA_H_I32: {
 
       if (nents(ent_dim)) { 
-        change_tagToMesh<I32> (ent_dim, tagbase->ncomps(), new_name,
-                               tagbase->class_ids());
+        change_tagToMesh<I32> (ent_dim, ncomps, new_name,
+                               class_ids);
       }
 
       auto out =
-          sync_array(ent_dim, as<I32>(tagbase)->array(), tagbase->ncomps());
+          sync_array(ent_dim, get_array<I32>(ent_dim,name), ncomps);
       set_tag(ent_dim, new_name, out);
 
-      change_tagTorc<I32> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+      change_tagTorc<I32> (ent_dim, ncomps, new_name,
+                          class_ids);
 
       break;
     }
     case OMEGA_H_I64: {
 
       if (nents(ent_dim)) { 
-        change_tagToMesh<I64> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+        change_tagToMesh<I64> (ent_dim, ncomps, new_name,
+                          class_ids);
       }
 
       auto out =
-          sync_array(ent_dim, as<I64>(tagbase)->array(), tagbase->ncomps());
+          sync_array(ent_dim, get_array<I64>(ent_dim,name), ncomps);
       set_tag(ent_dim, new_name, out);
 
-      change_tagTorc<I64> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+      change_tagTorc<I64> (ent_dim, ncomps, new_name,
+                          class_ids);
 
       break;
     }
     case OMEGA_H_F64: {
 
       if (nents(ent_dim)) {
-        change_tagToMesh<Real> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+        change_tagToMesh<Real> (ent_dim, ncomps, new_name,
+                          class_ids);
       }
 
       auto out =
-          sync_array(ent_dim, as<Real>(tagbase)->array(), tagbase->ncomps());
+          sync_array(ent_dim, get_array<Real>(ent_dim,name), ncomps);
       set_tag(ent_dim, new_name, out);
 
-      change_tagTorc<Real> (ent_dim, tagbase->ncomps(), new_name,
-                          tagbase->class_ids());
+      change_tagTorc<Real> (ent_dim, ncomps, new_name,
+                          class_ids);
 
       break;
     }

@@ -220,19 +220,49 @@ GO Mesh::nglobal_ents(Int ent_dim) {
 
 template <typename T>
 void Mesh::add_tag(Int ent_dim, std::string const& name, Int ncomps) {
-  this->add_tag(ent_dim, name, ncomps, Read<T>(), true);
+  this->add_tag<T>(ent_dim, name, ncomps, Read<T>(), true);
 }
 
+// TODO refactor add_tag definitions to share code and checks
 template <typename T>
 void Mesh::add_tag(Topo_type ent_type, std::string const& name, Int ncomps) {
+  //if (has_tag(ent_type, name)) remove_tag(ent_type, name);
+  auto it = tag_iter(ent_type, name);
+  auto had_tag = (it != tags_type_[int(ent_type)].end());
   if (has_tag(ent_type, name)) remove_tag(ent_type, name);
   check_type2(ent_type);
   check_tag_name(name);
   OMEGA_H_CHECK(ncomps >= 0);
   OMEGA_H_CHECK(ncomps <= Int(INT8_MAX));
   OMEGA_H_CHECK(tags_type_[int(ent_type)].size() < size_t(INT8_MAX));
-  TagPtr ptr(new Tag<T>(name, ncomps));
-  tags_type_[int(ent_type)].push_back(std::move(ptr));
+  auto ptr = std::make_shared<Tag<T>>(name,ncomps);
+  if(had_tag) {
+    *it = std::move(ptr);
+  }
+  else {
+    tags_type_[int(ent_type)].push_back(std::move(ptr));
+  }
+}
+template <typename T>
+void Mesh::add_tag(Topo_type ent_type, std::string const& name, Int ncomps,
+    Read<T> array, bool internal) {
+  check_type2(ent_type);
+  auto it = tag_iter(ent_type, name);
+  auto had_tag = (it != tags_type_[int(ent_type)].end());
+  check_tag_name(name);
+  OMEGA_H_CHECK(ncomps >= 0);
+  OMEGA_H_CHECK(ncomps <= Int(INT8_MAX));
+  OMEGA_H_CHECK(tags_type_[int(ent_type)].size() < size_t(INT8_MAX));
+  OMEGA_H_CHECK(array.size() == nents_type_[int(ent_type)] * ncomps);
+  auto ptr = std::make_shared<Tag<T>>(name,ncomps);
+  ptr->set_array(array);
+  if(had_tag) {
+    *it = std::move(ptr);
+  }
+  else {
+    tags_type_[int(ent_type)].push_back(std::move(ptr));
+  }
+  if (!internal) react_to_set_tag(ent_type, name);
 }
 
 template <typename T>
@@ -249,7 +279,8 @@ void Mesh::add_tag(Int ent_dim, std::string const& name, Int ncomps,
   }
   auto ptr = std::make_shared<Tag<T>>(name, ncomps);
   if (array.exists()) {
-    OMEGA_H_CHECK(array.size() == nents_[ent_dim] * ncomps);
+    //OMEGA_H_CHECK(array.size() == nents_[ent_dim] * ncomps);
+    OMEGA_H_CHECK((nents_[ent_dim] == 0) || divide_no_remainder(array.size(),ncomps));
     ptr->set_array(array);
   }
   if (had) {
@@ -257,13 +288,6 @@ void Mesh::add_tag(Int ent_dim, std::string const& name, Int ncomps,
   } else {
     tags_[ent_dim].push_back(std::move(ptr));
   }
-  auto ptr = std::make_shared<Tag<T>>(name, ncomps);
-  if (array.exists()) {
-    OMEGA_H_CHECK(array.size() == nents_[ent_dim] * ncomps);
-    ptr->set_array(array);
-  }
-  }
-  Tag<T>* tag = as<T>(tag_iter(ent_dim, name)->get());
   /* internal typically indicates migration/adaptation/file reading,
      when we do not want any invalidation to take place.
      the invalidation is there to prevent users changing coordinates
@@ -271,21 +295,12 @@ void Mesh::add_tag(Int ent_dim, std::string const& name, Int ncomps,
   if (!internal) react_to_set_tag(ent_dim, name);
 }
 
+// this add tag  called from vtk
 template <typename T>
 void Mesh::set_tag(
     Int ent_dim, std::string const& name, Read<T> array, bool internal) {
-  this->add_tag(ent_dim, name, divide_no_remainder(array.size(), nents(ent_dim)), array, internal);
-}
-
-void Mesh::react_to_set_tag(Int ent_dim, std::string const& name) {
-  /* hardcoded cache invalidations */
-  bool is_coordinates = (name == "coordinates");
-  if ((ent_dim == VERT) && (is_coordinates || (name == "metric"))) {
-    remove_tag(EDGE, "length");
-    remove_tag(dim(), "quality");
-  }
-  if ((ent_dim == VERT) && is_coordinates) {
-    remove_tag(dim(), "size");
+  const auto* tagbase = get_tagbase(ent_dim,name);
+  this->add_tag<T>(ent_dim, name, tagbase->ncomps(), array, internal);
 }
 
 template <typename T>
@@ -295,15 +310,14 @@ void Mesh::set_tag(
     Omega_h_fail("set_tag(%s, %s): tag doesn't exist (use add_tag first)\n",
       dimensional_plural_name(ent_type), name.c_str());
   }
-  Tag<T>* tag = as<T>(tag_iter(ent_type, name)->get());
-  OMEGA_H_CHECK(array.size() == nents(ent_type) * tag->ncomps());
-  if (!internal) react_to_set_tag(ent_type, name);
-  tag->set_array(array);
+  const auto* tagbase = get_tagbase(ent_type,name);
+  
+  this->add_tag<T>(ent_type,name,tagbase->ncomps(),array,internal);
 }
 
 void Mesh::react_to_set_tag(Int ent_dim, std::string const& name) {
   /* hardcoded cache invalidations */
-  bool is_coordinates = (name == "coordinates");
+  const bool is_coordinates = (name == "coordinates");
   if ((ent_dim == VERT) && (is_coordinates || (name == "metric"))) {
     remove_tag(EDGE, "length");
     remove_tag(dim(), "quality");
