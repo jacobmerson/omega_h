@@ -22,6 +22,7 @@ jobs:
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
           submodules: recursive
+          path: 'omegah' #under $GITHUB_WORKSPACE
           
       - name: build
         id: build
@@ -36,16 +37,16 @@ jobs:
           module load cuda/12.1.1-zxa4msk
           module load simmetrix-simmodsuite/2023.1-230907dev-jquex4z
           set -e
-          cd ${{github.workspace}}/..
-          root=$PWD
+
+          echo "github.workspace ${{github.workspace}}"
 
           # kokkos
-          git clone git@github.com:kokkos/kokkos.git 
-          kkbdir=$root/build-kokkos
-          cmake -S kokkos -B $kkbdir \
+          git clone git@github.com:kokkos/kokkos.git ${{github.workspace}}/kokkos
+          kkbdir=${{github.workspace}}/build-kokkos
+          cmake -S ${{github.workspace}}/kokkos -B $kkbdir \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=ON \
-            -DCMAKE_CXX_COMPILER=$root/kokkos/bin/nvcc_wrapper \
+            -DCMAKE_CXX_COMPILER=${{github.workspace}}/kokkos/bin/nvcc_wrapper \
             -DKokkos_ARCH_AMPERE80=ON \
             -DKokkos_ENABLE_SERIAL=ON \
             -DKokkos_ENABLE_OPENMP=off \
@@ -56,8 +57,8 @@ jobs:
           cmake --build $kkbdir --target install -j 4
 
           # omegah
-          bdir=$root/build-omegah
-          cmake -S ${{github.workspace}} -B $bdir \
+          bdir=${{github.workspace}}/build-omegah
+          cmake -S ${{github.workspace}}/omegah -B $bdir \
             -DCMAKE_INSTALL_PREFIX=$bdir/install \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTING=on  \
