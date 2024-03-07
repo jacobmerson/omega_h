@@ -1,0 +1,88 @@
+name: pr_comment_trigger_self_hosted
+
+# Controls when the workflow will run
+on:
+  issue_comment:                                     
+    types: [created]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    permissions:
+      contents: read
+    # The type of runner that the job will run on
+    runs-on: self-hosted
+
+    if: ${{ github.event.issue.pull_request }}
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+          submodules: recursive
+          
+      - name: build
+        id: build
+        if: contains(github.event.comment.body, '/runtests') && (github.event.comment.user.login == 'cwsmith')
+        shell: bash
+        run: |
+          set +e #avoid exiting when lua modules return non-zero on 'warning' messages
+          module use /opt/scorec/spack/rhel9/v0201_4/lmod/linux-rhel9-x86_64/Core/
+          module load gcc/12.3.0-iil3lno 
+          module load mpich/4.1.1-xpoyz4t
+          module load cmake/3.26.3-2duxfcd
+          module load cuda/12.1.1-zxa4msk
+          module load simmetrix-simmodsuite/2024.0-240219dev-lym6hwt
+          set -e
+          cd ${{github.workspace}}/..
+          root=$PWD
+
+          # kokkos
+          git clone git@github.com:kokkos/kokkos.git 
+          kkbdir=$root/build-kokkos
+          cmake -S kokkos -B $kkbdir \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCMAKE_CXX_COMPILER=$root/kokkos/bin/nvcc_wrapper \
+            -DKokkos_ARCH_AMPERE80=ON \
+            -DKokkos_ENABLE_SERIAL=ON \
+            -DKokkos_ENABLE_OPENMP=off \
+            -DKokkos_ENABLE_CUDA=on \
+            -DKokkos_ENABLE_CUDA_LAMBDA=on \
+            -DKokkos_ENABLE_DEBUG=off \
+            -DCMAKE_INSTALL_PREFIX=$kkbdir/install
+          cmake --build $kkbdir --target install -j 4
+
+          # omegah
+          bdir=$root/build-omegah
+          cmake -S ${{github.workspace}} -B $bdir \
+            -DCMAKE_INSTALL_PREFIX=$bdir/install \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=on  \
+            -DOmega_h_USE_MPI=on  \
+            -DOmega_h_USE_SimModSuite=on \
+            -DSIM_MPI=mpich4.1.1 \
+            -DOmega_h_USE_Kokkos=on \
+            -DOmega_h_CUDA_ARCH="80" \
+            -DCMAKE_CUDA_ARCHITECTURES="80" \
+            -DKokkos_PREFIX=$kkbdir/install \
+            -DBUILD_SHARED_LIBS=on
+          cmake --build $bdir -j 4
+          ctest --test-dir $bdir --output-on-failure
+
+      - name: Save Result Link
+        if: ${{ !cancelled() }} #prepare report unless the job was cancelled
+        run: |
+          mkdir -p ./pr
+          echo "${{ github.event.issue.number }}"  > ./pr/issueNumber
+          echo -n "Test Result: ${{ steps.build.outcome }} "  > ./pr/message
+          echo "[(details)](https://github.com/${{github.repository}}/actions/runs/${{ github.run_id }})" >> ./pr/message
+
+      - name: Upload Result
+        if: ${{ !cancelled() }} #upload unless the job was cancelled
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr
+          path: pr/
