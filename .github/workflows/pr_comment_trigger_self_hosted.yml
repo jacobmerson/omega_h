@@ -34,7 +34,7 @@ jobs:
           module load mpich/4.1.1-xpoyz4t
           module load cmake/3.26.3-2duxfcd
           module load cuda/12.1.1-zxa4msk
-          module load simmetrix-simmodsuite/2024.0-240219dev-lym6hwt
+          module load simmetrix-simmodsuite/2023.1-230907dev-jquex4z
           set -e
           cd ${{github.workspace}}/..
           root=$PWD
