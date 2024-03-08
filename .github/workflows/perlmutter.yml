@@ -13,3 +13,12 @@ jobs:
 
     - name: install globus
       run: pip install globus-compute-sdk
+
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10' 
+    
+    - name: run python
+    - run: python print("Hello World!")
+    
