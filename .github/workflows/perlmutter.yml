@@ -12,6 +12,11 @@ jobs:
     steps:
 
     - uses: actions/checkout@v4
+
+    - name: checkout omega_h
+      uses: actions/checkout@v4
+      with:
+        path: omega_h
     
     - name: install globus
       run: pip install globus-compute-sdk
@@ -22,4 +27,4 @@ jobs:
         python-version: '3.10'
     
     - name: run python
-      run: python -c "from globus_compute_sdk import Executor; tutorial_endpoint = 'edd9be03-6910-44e7-9cbc-a75794106ac3'; gce = Executor(endpoint_id = tutorial_endpoint); "
+      run: python ${{github.workspace}}/omega_h/.github/hello.py
