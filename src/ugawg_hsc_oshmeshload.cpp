@@ -9,9 +9,9 @@
 int main(int argc, char** argv) {
   auto lib = Omega_h::Library(&argc, &argv);
   Omega_h::CmdLine cmdline;
-  cmdline.add_arg<std::string>("mesh_in.meshb");
+  cmdline.add_arg<std::string>("mesh_in.osh");
   if (!cmdline.parse_final(lib.world(), &argc, argv)) return -1;
-  auto mesh_path = cmdline.get<std::string>("mesh_in.meshb");
+  auto mesh_path = cmdline.get<std::string>("mesh_in.osh");
   Omega_h::Mesh mesh(&lib);
   Omega_h::binary::read(mesh_path.c_str(), lib.world(), &mesh);
 
