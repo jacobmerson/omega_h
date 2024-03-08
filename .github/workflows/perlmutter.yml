@@ -8,12 +8,8 @@ jobs:
     strategy:
       matrix:
         compiler: [g++]
-        mpi: [on]
 
     steps:
 
-    - name: install mpich
-      if: ${{ matrix.mpi == 'on' }}
-      run: |
-           sudo apt update
-           sudo apt install mpich
+    - name: install globus
+      run: pip install globus-compute-sdk
