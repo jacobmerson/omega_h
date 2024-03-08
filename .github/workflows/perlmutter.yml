@@ -22,5 +22,5 @@ jobs:
         python-version: '3.10'
     
     - name: run python
-      run: python -c "from globus_compute_sdk import Executor tutorial_endpoint = '4b116d3c-1703-4f8f-9f6f-39921e5864df' gce = Executor(endpoint_id = tutorial_endpoint) print("Executor : ", gce)"
+      run: python -c "from globus_compute_sdk import Executor; tutorial_endpoint = 'edd9be03-6910-44e7-9cbc-a75794106ac3'; gce = Executor(endpoint_id = tutorial_endpoint); print("Executor : ", gce);"
     
