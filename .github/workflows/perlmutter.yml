@@ -24,6 +24,5 @@ jobs:
     - name: run python
       run: python -c "
         import sys; 
-        print(sys.version)
-      "
+        print(sys.version)"
     
