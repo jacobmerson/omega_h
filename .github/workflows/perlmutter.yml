@@ -4,32 +4,13 @@ on:
 
 jobs:
   build:
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        compiler: [g++, clang++]
-        mpi: [on, off]
-        kokkos: [on, off]
-        mempool: [on, off]
-        exclude:
-        - kokkos: off
-          mempool: on
-
-    env:
-      CXX: ${{matrix.compiler}}
-      MPICH_CXX: ${{matrix.compiler}}
+        compiler: [g++]
+        mpi: [on]
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        path: omega_h
-
-    - uses: actions/checkout@v4
-      if: ${{ matrix.kokkos == 'on' }}
-      with:
-        repository: kokkos/kokkos
-        path: kokkos
 
     - name: install mpich
       if: ${{ matrix.mpi == 'on' }}
