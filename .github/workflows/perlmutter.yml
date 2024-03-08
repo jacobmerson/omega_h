@@ -27,4 +27,4 @@ jobs:
         python-version: '3.10'
     
     - name: run python
-      run: python ${{github.workspace}}/omega_h/.github/hello.py
+      run: python ${{github.workspace}}/omega_h/.github/workflows/hello.py
