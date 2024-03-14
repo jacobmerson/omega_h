@@ -41,7 +41,7 @@ jobs:
           echo "github.workspace ${{github.workspace}}"
           
           date=`date +%F-%H-%M`
-          workDir=${{github.workspace}}/testSpack_${date}
+          workDir=${{github.workspace}}/omegahCI_${date}
           mkdir -p $workDir
           echo "OMEGAH_WORK_DIR=$(echo $workDir)" >> $GITHUB_ENV
           echo "workDir $workDir"
@@ -64,7 +64,7 @@ jobs:
 
           # omegah
           bdir=${workDir}/build-omegah
-          cmake -S ${workDir}/omegah -B $bdir \
+          cmake -S omegah -B $bdir \
             -DCMAKE_INSTALL_PREFIX=$bdir/install \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTING=on  \
