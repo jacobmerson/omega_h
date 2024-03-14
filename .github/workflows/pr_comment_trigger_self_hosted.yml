@@ -98,3 +98,4 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           echo "OMEGAH_WORK_DIR $OMEGAH_WORK_DIR"
+          rm -rf $OMEGAH_WORK_DIR
