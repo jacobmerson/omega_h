@@ -39,14 +39,20 @@ jobs:
           set -e
 
           echo "github.workspace ${{github.workspace}}"
+          
+          date=`date +%F-%H-%M`
+          workDir=${{github.workspace}}/testSpack_${date}
+          mkdir -p $workDir
+          echo "OMEGAH_WORK_DIR=$(echo $workDir)" >> $GITHUB_ENV
+          echo "workDir $workDir"
 
           # kokkos
-          git clone git@github.com:kokkos/kokkos.git ${{github.workspace}}/kokkos
-          kkbdir=${{github.workspace}}/build-kokkos
-          cmake -S ${{github.workspace}}/kokkos -B $kkbdir \
+          git clone git@github.com:kokkos/kokkos.git ${workDir}/kokkos
+          kkbdir=${workDir}/build-kokkos
+          cmake -S ${workDir}/kokkos -B $kkbdir \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=ON \
-            -DCMAKE_CXX_COMPILER=${{github.workspace}}/kokkos/bin/nvcc_wrapper \
+            -DCMAKE_CXX_COMPILER=${workDir}/kokkos/bin/nvcc_wrapper \
             -DKokkos_ARCH_AMPERE80=ON \
             -DKokkos_ENABLE_SERIAL=ON \
             -DKokkos_ENABLE_OPENMP=off \
@@ -57,8 +63,8 @@ jobs:
           cmake --build $kkbdir --target install -j 4
 
           # omegah
-          bdir=${{github.workspace}}/build-omegah
-          cmake -S ${{github.workspace}}/omegah -B $bdir \
+          bdir=${workDir}/build-omegah
+          cmake -S ${workDir}/omegah -B $bdir \
             -DCMAKE_INSTALL_PREFIX=$bdir/install \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTING=on  \
@@ -87,3 +93,8 @@ jobs:
         with:
           name: pr
           path: pr/
+
+      - name: Cleanup
+        if: ${{ !cancelled() }}
+        run: |
+          echo "OMEGAH_WORK_DIR $OMEGAH_WORK_DIR"
