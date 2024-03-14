@@ -15,7 +15,10 @@ jobs:
     # The type of runner that the job will run on
     runs-on: self-hosted
 
-    if: ${{ github.event.issue.pull_request }}
+    if: >
+      ${{ github.event.issue.pull_request }} &&
+      contains(github.event.comment.body, '/runtests') &&
+      (github.event.comment.user.login == 'cwsmith')
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
@@ -26,7 +29,6 @@ jobs:
           
       - name: build
         id: build
-        if: contains(github.event.comment.body, '/runtests') && (github.event.comment.user.login == 'cwsmith')
         shell: bash
         run: |
           set +e #avoid exiting when lua modules return non-zero on 'warning' messages
