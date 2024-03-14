@@ -4,10 +4,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        compiler: [g++]
+    runs-on: asics
 
     steps:
 
@@ -18,16 +15,5 @@ jobs:
       with:
         path: omega_h
 
-    - name: setup python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    - name: install packing
-      run: sudo apt install python3-packaging
-
-    - name: install globus
-      run: pip install globus-compute-sdk
-    
-    - name: run python
-      run: python ${{github.workspace}}/omega_h/.github/workflows/hello.py
+    - name: test dir
+      run: pwd
