@@ -8,12 +8,18 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v4
-
     - name: checkout omega_h
       uses: actions/checkout@v4
       with:
         path: omega_h
 
-    - name: test dir
-      run: pwd
+    - name: load modules
+      run: |
+          module load gcc
+          module load python
+
+    - name: print dir
+      working-directory: omega_h/.github/workflows
+      run: ls
+
+    
