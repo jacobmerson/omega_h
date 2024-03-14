@@ -22,7 +22,7 @@ jobs:
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
           submodules: recursive
-          path: 'omegah' #under $GITHUB_WORKSPACE
+          path: 'omegah_${{ github.event.issue.number }}' #under $GITHUB_WORKSPACE
           
       - name: build
         id: build
@@ -64,7 +64,7 @@ jobs:
 
           # omegah
           bdir=${workDir}/build-omegah
-          cmake -S omegah -B $bdir \
+          cmake -S omegah_${{ github.event.issue.number }} -B $bdir \
             -DCMAKE_INSTALL_PREFIX=$bdir/install \
             -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_TESTING=on  \
