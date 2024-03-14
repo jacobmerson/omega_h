@@ -13,12 +13,12 @@ jobs:
       with:
         path: omega_h
 
-    - name: load modules
+    - name: install globus
       run: |
-          module load gcc
-          module load python
+          python -m ensurepip --upgrade --user
+          python -m pip install globus-compute-endpoint
 
-    - name: print dir
+    - name: run tests
       working-directory: omega_h/.github/workflows
       run: ls
 
