@@ -8,12 +8,23 @@
 
 namespace Omega_h {
 
+/**
+ * \brief directed graph (as defined by graph theory) in compressed row format
+ *
+ * \details the typical access pattern: using a serial CPU backend
+ * for (LO a = 0; a < na; ++a) {
+ *   for (auto ab = a2ab[a]; ab < a2ab[a + 1]; ++ab) {
+ *     auto b = ab2b[ab];
+ *     // do something with the (a,b) pair
+ *   }
+ * }
+ */
 struct Graph {
   OMEGA_H_INLINE Graph() {}
   explicit Graph(LOs ab2b_) : ab2b(ab2b_) {}
   Graph(LOs a2ab_, LOs ab2b_) : a2ab(a2ab_), ab2b(ab2b_) {}
-  LOs a2ab;
-  LOs ab2b;
+  LOs a2ab; //offset array
+  LOs ab2b; //values array
   LO nnodes() const;
   LO nedges() const;
 };
