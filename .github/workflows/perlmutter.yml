@@ -37,9 +37,11 @@ jobs:
         python globusTests.py
 
     - name: print test summary
-      run: ls
+      working-directory: omega_h/.github/workflows
+      run: cat omega_h-test-result/TestSummary.log
 
     - name: print test log
+      working-directory: omega_h/.github/workflows
       run: cat omega_h-test-result/LastTest.log
 
     
