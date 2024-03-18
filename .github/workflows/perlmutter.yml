@@ -26,17 +26,14 @@ jobs:
           python -m ensurepip --upgrade --user
           python -m pip install globus-compute-endpoint
 
-    - name: use globus credentials
+    - name: use globus
       env:
         GLOBUS_ID: ${{ secrets.GLOBUS_COMPUTE_ID }}
         GLOBUS_SECRET: ${{ secrets.GLOBUS_COMPUTE_SECRET }}
       run: |
         export FUNCX_SDK_CLIENT_ID="$GLOBUS_ID"
         export FUNCX_SDK_CLIENT_ID="$GLOBUS_SECRET"
-
-    - name: run tests
-      working-directory: omega_h/.github/workflows
-      run: python globusTests.py
+        python globusTests.py
 
     - name: print test summary
       run: cat omega_h-test-result/TestSummary.log
