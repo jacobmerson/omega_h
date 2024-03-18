@@ -33,6 +33,7 @@ jobs:
         GLOBUS_SECRET: ${{ secrets.GLOBUS_COMPUTE_SECRET }}
       run: |
         export FUNCX_SDK_CLIENT_ID="$GLOBUS_ID"
+        export FUNCX_SDK_CLIENT_SECRET="$GLOBUS_SECRET"
         python globusTests.py
 
     - name: print test summary
