@@ -37,7 +37,7 @@ jobs:
         python globusTests.py
 
     - name: print test summary
-      run: cat omega_h-test-result/TestSummary.log
+      run: ls
 
     - name: print test log
       run: cat omega_h-test-result/LastTest.log
