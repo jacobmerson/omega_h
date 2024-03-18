@@ -27,12 +27,12 @@ jobs:
           python -m pip install globus-compute-endpoint
 
     - name: use globus
+      working-directory: omega_h/.github/workflows
       env:
         GLOBUS_ID: ${{ secrets.GLOBUS_COMPUTE_ID }}
         GLOBUS_SECRET: ${{ secrets.GLOBUS_COMPUTE_SECRET }}
       run: |
         export FUNCX_SDK_CLIENT_ID="$GLOBUS_ID"
-        export FUNCX_SDK_CLIENT_ID="$GLOBUS_SECRET"
         python globusTests.py
 
     - name: print test summary
