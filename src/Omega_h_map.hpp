@@ -57,6 +57,19 @@ LOs invert_funnel(LOs ab2a, LO na);
 
 Graph invert_map_by_sorting(LOs a2b, LO nb);
 
+/**
+ * \brief given a bipartite graph from set A to B with nodes
+ *        in A having degree 1 and nodes in B having degree > 1,
+ *        and the array of indices mapping A to B (a2b), construct
+ *        the graph from B to A.
+ * \details see Appendix A of Dan Ibanez's 2016 Ph.D. Thesis,
+ *  "CONFORMAL MESH ADAPTATION ON HETEROGENEOUS SUPERCOMPUTERS"
+ * \param a2b (in) map of indices in A to B
+ * \param nb (in) size of set B
+ * \b2ba_name (in) name of offset array in returned Graph
+ * \ba2a_name (in) name of values array in returned Graph
+ * \return Graph of B to A
+ */
 Graph invert_map_by_atomics(LOs const a2b, LO const nb,
     std::string const& b2ba_name = "", std::string const& ba2a_name = "");
 
