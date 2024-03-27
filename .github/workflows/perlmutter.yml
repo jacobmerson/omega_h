@@ -36,6 +36,10 @@ jobs:
         export FUNCX_SDK_CLIENT_SECRET="$GLOBUS_SECRET"
         python globusTests.py
 
+    - name: print build log
+      working-directory: omega_h/.github/workflows
+      run: cat omega_h-test-result/Build.log
+
     - name: print test summary
       working-directory: omega_h/.github/workflows
       run: cat omega_h-test-result/TestSummary.log

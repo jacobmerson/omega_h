@@ -9,20 +9,38 @@
 from globus_compute_sdk import Executor
 import os
 
-endpoint = '2e3dc4ed-3c37-4fe1-84c6-edc51c9f08f5'
+endpoint = '0dd4499a-8d76-4977-bae9-841e4bb2f616'
 gce = Executor(endpoint_id = endpoint)
-# print("Executor : ", gce)
 
 def run_test():
-    import os
-    # return os.popen("./build-test-omega_h.sh").read()
-    result = os.popen("cat omega_h-test-result/LastTest.log").read()
-    summary = os.popen("cat omega_h-test-result/TestSummary.log").read()
-    return (summary, result)
+    import subprocess
 
+    install = subprocess.run(["./install-test.sh omega_h-test master"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
+    if install.returncode == 1:
+        return (install, "", "")
+
+    test = subprocess.run(["./install-test.sh omega_h-test build-omegah-perlmutter-cuda"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
+    if test.returncode == 1:
+        return (install, test, "")
+    
+    with open("omega_h-test-result/LastTest.log","r")  as f:
+        result = f.read()
+
+    return (install, test, result)
+
+# print(run_test()[1])
 future = gce.submit(run_test)
+# print(future.result()[0])
+
 os.popen("mkdir -p omega_h-test-result").read()
-with open("omega_h-test-result/LastTest.log", "w") as text_file:
-    text_file.write("%s" % future.result()[0])
-with open("omega_h-test-result/TestSummary.log", "w") as text_file:
-    text_file.write("%s" % future.result()[1])
+
+result = future.result()
+
+with open("omega_h-test-result/Build.log", "w") as text_file:
+    text_file.write("%s" % result[0].stdout)
+if result[0].returncode == 0:
+    with open("omega_h-test-result/LastTest.log", "w") as text_file:
+        text_file.write("%s" % result[1].stdout)
+    if result[1].returncode == 0:
+        with open("omega_h-test-result/TestSummary.log", "w") as text_file:
+            text_file.write("%s" % result[2])
