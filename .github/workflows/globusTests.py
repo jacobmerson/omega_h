@@ -30,11 +30,10 @@ def run_test():
 
 # print(run_test()[1])
 future = gce.submit(run_test)
-# print(future.result()[0])
+result = future.result()
+print(future.result()[0])
 
 os.popen("mkdir -p omega_h-test-result").read()
-
-result = future.result()
 
 with open("omega_h-test-result/Build.log", "w") as text_file:
     text_file.write("%s" % result[0].stdout)
