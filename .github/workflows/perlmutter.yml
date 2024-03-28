@@ -34,7 +34,7 @@ jobs:
       run: |
         export FUNCX_SDK_CLIENT_ID="$GLOBUS_ID"
         export FUNCX_SDK_CLIENT_SECRET="$GLOBUS_SECRET"
-        python globusTests.py
+        python globus-compute.py
 
     - name: print build log
       working-directory: omega_h/.github/workflows
