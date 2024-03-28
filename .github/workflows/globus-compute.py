@@ -17,16 +17,16 @@ def run_test():
 
     install = subprocess.run(["./install-test.sh omega_h-test master"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
     if install.returncode == 1:
-        return (install, "", "")
+        return (install, None, None)
 
-    test = subprocess.run(["./run-test.sh omega_h-test build-omegah-perlmutter-cuda"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
-    if test.returncode == 1:
-        return (install, test, "")
+    summary = subprocess.run(["./run-test.sh omega_h-test build-omegah-perlmutter-cuda"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
+    if summary.returncode == 1:
+        return (install, summary, None)
     
     with open("omega_h-test-result/LastTest.log","r")  as f:
         result = f.read()
 
-    return (install, test, result)
+    return (install, summary, result)
 
 # print(run_test()[1])
 future = gce.submit(run_test)
@@ -38,10 +38,9 @@ with open("omega_h-test-result/Build.log", "w") as text_file:
     text_file.write("%s" % result[0].stdout)
     text_file.close()
 if result[0].returncode == 0:
-    with open("omega_h-test-result/LastTest.log", "w") as text_file:
+    with open("omega_h-test-result/TestSummary.log", "w") as text_file:
         text_file.write("%s" % result[1].stdout)
         text_file.close()
-    if result[1].returncode == 0:
-        with open("omega_h-test-result/TestSummary.log", "w") as text_file:
-            text_file.write("%s" % result[2])
-            text_file.close()
+    with open("omega_h-test-result/LastTest.log", "w") as text_file:
+        text_file.write("%s" % result[2])
+        text_file.close()
