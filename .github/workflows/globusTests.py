@@ -19,7 +19,7 @@ def run_test():
     if install.returncode == 1:
         return (install, "", "")
 
-    test = subprocess.run(["./install-test.sh omega_h-test build-omegah-perlmutter-cuda"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
+    test = subprocess.run(["./run-test.sh omega_h-test build-omegah-perlmutter-cuda"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
     if test.returncode == 1:
         return (install, test, "")
     
