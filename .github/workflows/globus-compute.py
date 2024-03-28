@@ -20,11 +20,11 @@ branch = sys.argv[1]
 def run_test(name, build, branch):
     import subprocess
 
-    install = subprocess.run(["./install-test.sh "+name+" "+branch], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
+    install = subprocess.run(["./install-test.sh "+name+" "+branch], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if install.returncode == 1:
         return (install, None, None)
 
-    summary = subprocess.run(["./run-test.sh "+name+" "+build], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
+    summary = subprocess.run(["./run-test.sh "+name+" "+build], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if summary.returncode == 1:
         return (install, summary, None)
     
@@ -38,7 +38,6 @@ future = gce.submit(run_test, name, build, branch)
 result = future.result()
 
 os.popen("mkdir -p "+name+"-result").read()
-
 with open(name+"-result/Build.log", "w") as text_file:
     text_file.write("%s" % result[0].stdout)
     text_file.close()
