@@ -2,6 +2,9 @@ name: Perlmutter
 on:
   push:
 
+concurrency:
+  group: perlmutter-omega_h
+
 jobs:
   build:
     runs-on: ubuntu-latest
