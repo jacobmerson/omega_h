@@ -7,6 +7,7 @@
 # 4. Replace the endpoint in script to us your new endpoint
 
 from globus_compute_sdk import Executor
+import sys
 import os
 
 endpoint = '0dd4499a-8d76-4977-bae9-841e4bb2f616'
@@ -14,7 +15,7 @@ gce = Executor(endpoint_id = endpoint)
 
 name = "omega_h-test"
 build = "build-omegah-perlmutter-cuda"
-branch = "master"
+branch = sys.argv[1]
 
 def run_test(name, build, branch):
     import subprocess
