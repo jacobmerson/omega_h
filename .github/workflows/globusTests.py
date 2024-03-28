@@ -31,15 +31,17 @@ def run_test():
 # print(run_test()[1])
 future = gce.submit(run_test)
 result = future.result()
-print(future.result()[0])
 
 os.popen("mkdir -p omega_h-test-result").read()
 
 with open("omega_h-test-result/Build.log", "w") as text_file:
     text_file.write("%s" % result[0].stdout)
+    text_file.close()
 if result[0].returncode == 0:
     with open("omega_h-test-result/LastTest.log", "w") as text_file:
         text_file.write("%s" % result[1].stdout)
+        text_file.close()
     if result[1].returncode == 0:
         with open("omega_h-test-result/TestSummary.log", "w") as text_file:
             text_file.write("%s" % result[2])
+            text_file.close()
