@@ -12,35 +12,39 @@ import os
 endpoint = '0dd4499a-8d76-4977-bae9-841e4bb2f616'
 gce = Executor(endpoint_id = endpoint)
 
-def run_test():
+name = "omega_h-test"
+build = "build-omegah-perlmutter-cuda"
+branch = "master"
+
+def run_test(name, build, branch):
     import subprocess
 
-    install = subprocess.run(["./install-test.sh omega_h-test master"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
+    install = subprocess.run(["./install-test.sh "+name+" "+branch], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
     if install.returncode == 1:
         return (install, None, None)
 
-    summary = subprocess.run(["./run-test.sh omega_h-test build-omegah-perlmutter-cuda"], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
+    summary = subprocess.run(["./run-test.sh "+name+" "+build], shell=True, encoding="utf_8", stdout=subprocess.PIPE)
     if summary.returncode == 1:
         return (install, summary, None)
     
-    with open("omega_h-test-result/LastTest.log","r")  as f:
+    with open(name+"-result/LastTest.log","r")  as f:
         result = f.read()
 
     return (install, summary, result)
 
 # print(run_test()[1])
-future = gce.submit(run_test)
+future = gce.submit(run_test, name, build, branch)
 result = future.result()
 
-os.popen("mkdir -p omega_h-test-result").read()
+os.popen("mkdir -p "+name+"-result").read()
 
-with open("omega_h-test-result/Build.log", "w") as text_file:
+with open(name+"-result/Build.log", "w") as text_file:
     text_file.write("%s" % result[0].stdout)
     text_file.close()
 if result[0].returncode == 0:
-    with open("omega_h-test-result/TestSummary.log", "w") as text_file:
+    with open(name+"-result/TestSummary.log", "w") as text_file:
         text_file.write("%s" % result[1].stdout)
         text_file.close()
-    with open("omega_h-test-result/LastTest.log", "w") as text_file:
+    with open(name+"-result/LastTest.log", "w") as text_file:
         text_file.write("%s" % result[2])
         text_file.close()
