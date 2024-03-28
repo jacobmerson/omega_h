@@ -35,10 +35,11 @@ jobs:
       env:
         GLOBUS_ID: ${{ secrets.GLOBUS_COMPUTE_ID }}
         GLOBUS_SECRET: ${{ secrets.GLOBUS_COMPUTE_SECRET }}
+        TARGET_ENDPOINT: '0dd4499a-8d76-4977-bae9-841e4bb2f616'
       run: |
         export FUNCX_SDK_CLIENT_ID="$GLOBUS_ID"
         export FUNCX_SDK_CLIENT_SECRET="$GLOBUS_SECRET"
-        python globus-compute.py ${{ github.sha }}
+        python globus-compute.py ${{ github.sha }} $TARGET_ENDPOINT
 
     - name: print build log
       working-directory: omega_h/.github/workflows
