@@ -1,5 +1,6 @@
 name: Perlmutter
 on:
+  push:
   schedule:
     - cron: '0 1 * * 0'
 
@@ -9,6 +10,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        machine: ["Perlmutter"]
 
     steps:
 
