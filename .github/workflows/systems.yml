@@ -1,4 +1,4 @@
-name: Perlmutter
+name: Systems
 on:
   push:
   schedule:
