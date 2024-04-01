@@ -1,5 +1,6 @@
 name: Systems
 on:
+  #TODO: Remove
   push:
   schedule:
     # Sunday 1AM
@@ -9,7 +10,7 @@ concurrency:
   group: perlmutter-omega_h
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -61,6 +62,6 @@ jobs:
 
     - name: check failed test
       working-directory: omega_h/.github/workflows
-      run: grep -E "Failed|failed" omega_h-test-result/TestSummary.log
+      run: grep "Failed" omega_h-test-result/TestSummary.log
 
     
