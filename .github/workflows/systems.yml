@@ -1,5 +1,6 @@
 name: Systems
 on:
+  push:
   schedule:
     # Sunday 1AM
     - cron: '0 1 * * 0' 
@@ -57,5 +58,9 @@ jobs:
     - name: print test log
       working-directory: omega_h/.github/workflows
       run: cat omega_h-test-result/LastTest.log
+
+    - name: check failed test
+      working-directory: omega_h/.github/workflows
+      run: grep -E "Failed|failed" omega_h-test-result/TestSummary.log
 
     
