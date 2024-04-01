@@ -13,8 +13,9 @@ import os
 name = "omega_h-test"
 build = "build-omegah-cuda"
 branch = sys.argv[1]
+account = sys.argv[2]
 
-endpoint = sys.argv[2]
+endpoint = sys.argv[3]
 gce = Executor(endpoint_id = endpoint)
 
 def run_test(name, build, branch):
@@ -24,7 +25,7 @@ def run_test(name, build, branch):
     if install.returncode == 1:
         return (install, None, None)
 
-    summary = subprocess.run(["./run-test.sh "+name+" "+build], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    summary = subprocess.run(["./run-test.sh "+name+" "+build+" "+account], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if summary.returncode == 1:
         return (install, summary, None)
     
