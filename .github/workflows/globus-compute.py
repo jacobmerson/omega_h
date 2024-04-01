@@ -18,7 +18,7 @@ account = sys.argv[2]
 endpoint = sys.argv[3]
 gce = Executor(endpoint_id = endpoint)
 
-def run_test(name, build, branch):
+def run_test(name, build, branch, account):
     import subprocess
 
     install = subprocess.run(["./install-test.sh "+name+" "+branch], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -35,7 +35,7 @@ def run_test(name, build, branch):
     return (install, summary, result)
 
 # print(run_test()[1])
-future = gce.submit(run_test, name, build, branch)
+future = gce.submit(run_test, name, build, branch, account)
 result = future.result()
 
 os.popen("mkdir -p "+name+"-result").read()
