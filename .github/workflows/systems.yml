@@ -1,8 +1,8 @@
 name: Systems
 on:
-  push:
   schedule:
-    - cron: '0 1 * * 0'
+    # Sunday 1AM
+    - cron: '0 1 * * 0' 
 
 concurrency:
   group: perlmutter-omega_h
