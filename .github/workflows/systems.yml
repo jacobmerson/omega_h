@@ -38,15 +38,11 @@ jobs:
 
     - name: set endpoint perlmutter
       if: ${{matrix.machine == 'Perlmutter'}}
-      env:
-        TARGET_ENDPOINT: '0dd4499a-8d76-4977-bae9-841e4bb2f616'
-      run: echo $TARGET_ENDPOINT
+      run: TARGET_ENDPOINT=0dd4499a-8d76-4977-bae9-841e4bb2f616
     
     - name: set endpoint frontier
       if: ${{matrix.machine == 'Frontier'}}
-      env:
-        TARGET_ENDPOINT: '1212122'
-      run: echo $TARGET_ENDPOINT
+      run: TARGET_ENDPOINT=123412
 
     - name: result
       run: echo $TARGET_ENDPOINT
