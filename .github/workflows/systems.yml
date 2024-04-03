@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        machine: ["Perlmutter"]
+        machine: ["Perlmutter", "Frontier"]
 
     steps:
 
@@ -36,12 +36,26 @@ jobs:
           python -m ensurepip --upgrade --user
           python -m pip install globus-compute-endpoint
 
+    - name: set endpoint perlmutter
+      if: ${{matrix.machine == "Perlmutter"}}
+      env:
+        TARGET_ENDPOINT: '0dd4499a-8d76-4977-bae9-841e4bb2f616'
+      run: echo $TARGET_ENDPOINT
+    
+    - name: set endpoint frontier
+      if: ${{matrix.machine == "Frontier"}}
+      env:
+        TARGET_ENDPOINT: '1212122'
+      run: echo $TARGET_ENDPOINT
+
+    - name: result
+      run: echo $TARGET_ENDPOINT && exit 1
+
     - name: use globus
       working-directory: omega_h/.github/workflows
       env:
         GLOBUS_ID: ${{ secrets.GLOBUS_COMPUTE_ID }}
         GLOBUS_SECRET: ${{ secrets.GLOBUS_COMPUTE_SECRET }}
-        TARGET_ENDPOINT: '0dd4499a-8d76-4977-bae9-841e4bb2f616'
       run: |
         export FUNCX_SDK_CLIENT_ID="$GLOBUS_ID"
         export FUNCX_SDK_CLIENT_SECRET="$GLOBUS_SECRET"
