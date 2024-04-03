@@ -36,16 +36,10 @@ jobs:
           python -m ensurepip --upgrade --user
           python -m pip install globus-compute-endpoint
 
-    - name: set endpoint perlmutter
-      if: ${{matrix.machine == 'Perlmutter'}}
-      run: TARGET_ENDPOINT=0dd4499a-8d76-4977-bae9-841e4bb2f616
-    
-    - name: set endpoint frontier
-      if: ${{matrix.machine == 'Frontier'}}
-      run: TARGET_ENDPOINT=123412
-
-    - name: result
-      run: echo $TARGET_ENDPOINT
+    - name: set endpoint
+      run: |
+          if ${{matix.machine}} == "Perlmutter"; then TARGET_ENDPOINT=123; else TARGET_ENDPOINT=456; fi
+          echo $TARGET_ENDPOINT
 
     - run: exit 1
 
