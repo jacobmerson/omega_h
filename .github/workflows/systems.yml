@@ -38,7 +38,8 @@ jobs:
 
     - name: set endpoint
       run: |
-          if ${{matrix.machine}} == "Perlmutter"; then TARGET_ENDPOINT=123; else TARGET_ENDPOINT=456; fi
+          if [ ${{matrix.machine}} == Perlmutter ]; then TARGET_ENDPOINT=123; fi
+          if [ ${{matrix.machine}} == Frontier ]; then TARGET_ENDPOINT=456; fi
           echo $TARGET_ENDPOINT
 
     - run: exit 1
