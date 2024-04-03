@@ -11,7 +11,7 @@ import sys
 import os
 
 name = "omega_h-test"
-build = "build-omegah-cuda"
+build = "build-omega_h"
 branch = sys.argv[1]
 
 endpoint = sys.argv[2]
