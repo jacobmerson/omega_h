@@ -51,7 +51,7 @@ jobs:
     - name: result
       run: echo $TARGET_ENDPOINT
 
-      run: exit 1
+    - run: exit 1
 
     - name: use globus
       working-directory: omega_h/.github/workflows
