@@ -4,7 +4,7 @@
 #     $ export FUNCX_SDK_CLIENT_ID="b0500dab-ebd4-430f-b962-0c85bd43bdbb"
 #     $ export FUNCX_SDK_CLIENT_SECRET="ABCDEFGHIJKLMNOP0123456789="
 # 3. Set up an endpoint on the computer that will run the tests, using these instructions: https://funcx.readthedocs.io/en/latest/endpoints.html
-# 4. Replace the endpoint in script to us your new endpoint
+# 4. Create install-test.sh and run-test.sh on target computer
 
 from globus_compute_sdk import Executor
 import sys
@@ -13,11 +13,9 @@ import os
 name = "omega_h-test"
 build = "build-omega_h"
 branch = sys.argv[1]
-
 endpoint = sys.argv[2]
-gce = Executor(endpoint_id = endpoint)
 
-def run_test(name, build, branch):
+def run_on_endpoint(name, build, branch):
     import subprocess
 
     install = subprocess.run(["./install-test.sh "+name+" "+branch], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -33,8 +31,8 @@ def run_test(name, build, branch):
 
     return (install, summary, result)
 
-# print(run_test()[1])
-future = gce.submit(run_test, name, build, branch)
+gce = Executor(endpoint_id = endpoint)
+future = gce.submit(run_on_endpoint, name, build, branch)
 result = future.result()
 
 os.popen("mkdir -p "+name+"-result").read()
