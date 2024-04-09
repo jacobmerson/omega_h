@@ -1,10 +1,8 @@
 name: Systems
 on:
-  #TODO: Remove
-  push:
   schedule:
-    # Sunday 1AM
-    - cron: '0 1 * * 0' 
+    # Sunday 1:30 AM
+    - cron: '30 1 * * 0' 
 
 concurrency:
   group: systems-omega_h
@@ -13,7 +11,7 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       matrix:
         machine: ["Perlmutter", "Frontier"]
