@@ -52,16 +52,12 @@ jobs:
       working-directory: omega_h/.github/workflows
       run: cat omega_h-test-result/Build.log
 
-    - name: print test summary
-      working-directory: omega_h/.github/workflows
-      run: cat omega_h-test-result/TestSummary.log
-
     - name: print test log
       working-directory: omega_h/.github/workflows
-      run: cat omega_h-test-result/LastTest.log
+      run: cat omega_h-test-result/Test.log
 
     - name: check failed test
       working-directory: omega_h/.github/workflows
-      run: if grep "Failed" omega_h-test-result/TestSummary.log; then return 1; fi
+      run: if grep "Failed" omega_h-test-result/Test.log; then return 1; fi
 
     

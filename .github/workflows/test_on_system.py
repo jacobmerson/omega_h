@@ -19,16 +19,10 @@ def run_on_endpoint(name, branch):
 
     install = subprocess.run(["./install-test.sh "+name+" "+branch], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if install.returncode == 1:
-        return (install, None, None)
+        return (install, None)
 
-    summary = subprocess.run(["./run-test.sh "+name], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    if summary.returncode == 1:
-        return (install, summary, None)
-    
-    with open(name+"-result/LastTest.log","r")  as f:
-        result = f.read()
-
-    return (install, summary, result)
+    result = subprocess.run(["./run-test.sh "+name], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return (install, result)
 
 gce = Executor(endpoint_id = endpoint)
 future = gce.submit(run_on_endpoint, name, branch)
@@ -39,9 +33,6 @@ with open(name+"-result/Build.log", "w") as text_file:
     text_file.write("%s" % result[0].stdout)
     text_file.close()
 if result[0].returncode == 0:
-    with open(name+"-result/TestSummary.log", "w") as text_file:
+    with open(name+"-result/Test.log", "w") as text_file:
         text_file.write("%s" % result[1].stdout)
-        text_file.close()
-    with open(name+"-result/LastTest.log", "w") as text_file:
-        text_file.write("%s" % result[2])
         text_file.close()
