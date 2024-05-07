@@ -10,19 +10,18 @@ from globus_compute_sdk import Executor
 import sys
 import os
 
-name = "omega_h-test"
-build = "build-omega_h"
+name = "omega_h"
 branch = sys.argv[1]
 endpoint = sys.argv[2]
 
-def run_on_endpoint(name, build, branch):
+def run_on_endpoint(name, branch):
     import subprocess
 
     install = subprocess.run(["./install-test.sh "+name+" "+branch], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if install.returncode == 1:
         return (install, None, None)
 
-    summary = subprocess.run(["./run-test.sh "+name+" "+build], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    summary = subprocess.run(["./run-test.sh "+name], shell=True, encoding="utf_8", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if summary.returncode == 1:
         return (install, summary, None)
     
@@ -32,7 +31,7 @@ def run_on_endpoint(name, build, branch):
     return (install, summary, result)
 
 gce = Executor(endpoint_id = endpoint)
-future = gce.submit(run_on_endpoint, name, build, branch)
+future = gce.submit(run_on_endpoint, name, branch)
 result = future.result()
 
 os.popen("mkdir -p "+name+"-result").read()
