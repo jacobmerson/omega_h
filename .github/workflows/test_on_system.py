@@ -10,9 +10,9 @@ from globus_compute_sdk import Executor
 import sys
 import os
 
-name = "omega_h"
-branch = sys.argv[1]
-endpoint = sys.argv[2]
+name = sys.argv[1]
+branch = sys.argv[2]
+endpoint = sys.argv[3]
 
 def run_on_endpoint(name, branch):
     import subprocess
