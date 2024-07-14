@@ -12,9 +12,8 @@ struct bboxWrap {
 
   KOKKOS_INLINE_FUNCTION   // Default constructor - Initialize to 0's
   bboxWrap() {
-    const auto zero = zero_vector<N>();
-    box.min = zero;
-    box.max = zero;
+    box.min = max_float_vector<N>();
+    box.max = min_float_vector<N>();
   }
   KOKKOS_INLINE_FUNCTION   // Copy Constructor
   bboxWrap(const bboxWrap & rhs) {
