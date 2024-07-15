@@ -151,13 +151,13 @@ OMEGA_H_INLINE Vector<n> zero_vector() OMEGA_H_NOEXCEPT {
 }
 
 template <Int n>
-OMEGA_H_INLINE Vector<n> max_float_vector() OMEGA_H_NOEXCEPT {
-  return fill_vector<n>(Kokkos::Experimental::finite_max_v<float>);
+OMEGA_H_INLINE Vector<n> max_vector() OMEGA_H_NOEXCEPT {
+  return fill_vector<n>(Kokkos::Experimental::finite_max_v<Real>);
 }
 
 template <Int n>
-OMEGA_H_INLINE Vector<n> min_float_vector() OMEGA_H_NOEXCEPT {
-  return fill_vector<n>(Kokkos::Experimental::finite_min_v<float>);
+OMEGA_H_INLINE Vector<n> min_vector() OMEGA_H_NOEXCEPT {
+  return fill_vector<n>(Kokkos::Experimental::finite_min_v<Real>);
 }
 
 /* Moore-Penrose pseudo-inverse of a vector */
