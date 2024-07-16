@@ -12,8 +12,8 @@ struct bboxWrap {
 
   KOKKOS_INLINE_FUNCTION   // Default constructor
   bboxWrap() {
-    box.min = max_vector<N>();
-    box.max = min_vector<N>();
+    box.min = fill_vector<N>(Kokkos::Experimental::finite_max_v<Real>);
+    box.max = fill_vector<N>(Kokkos::Experimental::finite_min_v<Real>);
   }
   KOKKOS_INLINE_FUNCTION   // Copy Constructor
   bboxWrap(const bboxWrap & rhs) {
