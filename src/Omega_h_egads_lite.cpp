@@ -266,20 +266,6 @@ Egads* egads_lite_load(std::string const& filename) {
   return eg;
 }
 
-static int get_dim(ego e) {
-  ego ref;
-  int oclass;
-  int mtype;
-  int nchild;
-  ego* children;
-  int* senses;
-  CALL(EG_getTopology(
-      e, &ref, &oclass, &mtype, nullptr, &nchild, &children, &senses));
-  for (int i = 0; i <= 3; ++i)
-    if (dims2oclass[i] == oclass) return i;
-  return -1;
-}
-
 void egads_lite_classify(Egads* eg, int nadj_faces, int const adj_face_ids[],
     int* class_dim, int* class_id) {
   std::set<ego> uniq_adj_faces;
