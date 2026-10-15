@@ -94,7 +94,7 @@ jobs:
           egadslitebdir=${workDir}/build-egadsliteCuda
           cmake -S ${workDir}/egadsliteCuda -B $egadslitebdir \
             -DCMAKE_INSTALL_PREFIX=$egadslitebdir/install \
-            -DCMAKE_CUDA_ARCHITECTURES=86
+            -DCMAKE_CUDA_ARCHITECTURES=80
           cmake --build $egadslitebdir --target install -j 4
           echo "EGADSLITE_BUILD=$egadslitebdir" >> $GITHUB_ENV
 
@@ -207,8 +207,10 @@ jobs:
           libMeshbdir=$LIBMESHB_BUILD
           kkbdir_rdc=$KOKKOS_CUDA_RDC_BUILD
           egadslitebdir=$EGADSLITE_BUILD
+          gmsbdir=$GMSH_BUILD
           workDir=$OMEGAH_WORK_DIR
-          export CMAKE_PREFIX_PATH="$libMeshbdir/install:$egadslitebdir/install:$kkbdir_rdc/install:$CMAKE_PREFIX_PATH"
+          export LD_LIBRARY_PATH="$gmsbdir/install/lib64:$LD_LIBRARY_PATH"
+          export CMAKE_PREFIX_PATH="$libMeshbdir/install:$egadslitebdir/install:$egadslitebdir/install/lib64/:$kkbdir_rdc/install:$CMAKE_PREFIX_PATH"
 
           # omegah
           bdir=${workDir}/build-omegah
@@ -221,6 +223,10 @@ jobs:
             -DOmega_h_CUDA_ARCH="80" \
             -DCMAKE_CUDA_ARCHITECTURES="80" \
             -DOmega_h_USE_libMeshb=ON \
+            -DOmega_h_USE_Gmsh=ON \
+            -DGmsh_INCLUDE_DIRS=$gmsbdir/install/include \
+            -DGmsh_LIBRARIES=$gmsbdir/install/lib64/libgmsh.so.4.14.1 \
+            -DBUILD_SHARED_LIBS=on \
             -DOmega_h_USE_egadslite=ON
           cmake --build $bdir -j 4
           ctest --test-dir $bdir --output-on-failure
